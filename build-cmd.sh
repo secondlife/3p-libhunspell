@@ -40,7 +40,10 @@ pushd "$HUNSPELL_SOURCE_DIR"
         windows*)
             load_vsvars
 
-            build_sln "src/win_api/hunspell.sln" "Release_dll|$AUTOBUILD_WIN_VSPLATFORM"
+            msbuild.exe "$(cygpath -w src/win_api/hunspell.sln)" \
+                -p:Platform=$AUTOBUILD_WIN_VSPLATFORM \
+                -p:Configuration="Release_dll" \
+                -p:PlatformToolset=v143
 
             mkdir -p "$stage/lib/release"
 
@@ -57,31 +60,31 @@ pushd "$HUNSPELL_SOURCE_DIR"
             export CXXFLAGS="$opts"
             export LDFLAGS="$opts"
             ./configure --prefix="$stage"
-            make
+            make -j$(nproc)
             make install
             mkdir -p "$stage/lib/release"
             mv "$stage/lib/"{*.a,*.dylib,*.alias} "$stage/lib/release"
             pushd "$stage/lib/release"
                 fix_dylib_id libhunspell-*.dylib
               
-                CONFIG_FILE="$build_secrets_checkout/code-signing-osx/config.sh"
-                if [ -f "$CONFIG_FILE" ]; then
-                    source $CONFIG_FILE
-                    for dylib in libhunspell-*.dylib;
-                    do
-                        if [ -f "$dylib" ]; then
-                            codesign --force --timestamp --sign "$APPLE_SIGNATURE" "$dylib"
-                        fi
-                    done
-                else
-                    echo "No config file found; skipping codesign."
-                fi
+                # CONFIG_FILE="$build_secrets_checkout/code-signing-osx/config.sh"
+                # if [ -f "$CONFIG_FILE" ]; then
+                #     source $CONFIG_FILE
+                #     for dylib in libhunspell-*.dylib;
+                #     do
+                #         if [ -f "$dylib" ]; then
+                #             codesign --force --timestamp --sign "$APPLE_SIGNATURE" "$dylib"
+                #         fi
+                #     done
+                # else
+                #     echo "No config file found; skipping codesign."
+                # fi
             popd
         ;;
         linux*)
             opts="-m$AUTOBUILD_ADDRSIZE $LL_BUILD_RELEASE"
             CFLAGS="$opts" CXXFLAGS="$opts" ./configure --prefix="$stage"
-            make
+            make -j$(nproc)
             make install
             mv "$stage/lib" "$stage/release"
             mkdir -p "$stage/lib"
