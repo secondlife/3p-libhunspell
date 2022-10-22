@@ -14,6 +14,8 @@ jobs:
       - uses: secondlife/action-autobuild@v3
         with:
           addrsize: ${{ matrix.addrsize }}
+          build-variables-ref: viewer
+
   release:
     needs: build
     runs-on: [ubuntu-latest]
