@@ -27,6 +27,11 @@ fi
 
 stage="$(pwd)/stage"
 
+# IMPORTANT: (Effectively) removing the code signing step for macOS
+# builds with this declaration during the move to GHA. It will
+# need to be added back in once we have a strategy for doing so.
+build_secrets_checkout=""
+
 # load autobuild provided shell functions and variables
 source_environment_tempfile="$stage/source_environment.sh"
 "$autobuild" source_environment > "$source_environment_tempfile"
