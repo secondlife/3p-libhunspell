@@ -68,7 +68,7 @@ pushd "$HUNSPELL_SOURCE_DIR"
             make -j$(nproc)
             make install
             mkdir -p "$stage/lib/release"
-            mv "$stage/lib/"{*.a,*.dylib,*.alias} "$stage/lib/release"
+            mv "$stage/lib/"{*.a,*.dylib} "$stage/lib/release"
             pushd "$stage/lib/release"
                 fix_dylib_id libhunspell-*.dylib
               
