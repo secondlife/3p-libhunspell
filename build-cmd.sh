@@ -35,6 +35,11 @@ source_environment_tempfile="$stage/source_environment.sh"
 build=${AUTOBUILD_BUILD_ID:=0}
 echo "${HUNSPELL_VERSION}.${build}" > "${stage}/VERSION.txt"
 
+# IMPORTANT: (Effectively) removing the code signing step for macOS
+# builds with this declaration during the move to GHA. It will
+# need to be added back in once we have a strategy for doing so.
+build_secrets_checkout=""
+
 pushd "$HUNSPELL_SOURCE_DIR"
     case "$AUTOBUILD_PLATFORM" in
         windows*)
