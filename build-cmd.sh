@@ -37,6 +37,9 @@ source_environment_tempfile="$stage/source_environment.sh"
 "$autobuild" source_environment > "$source_environment_tempfile"
 . "$source_environment_tempfile"
 
+# remove_cxxstd
+source "$(dirname "$AUTOBUILD_VARIABLES_FILE")/functions"
+
 build=${AUTOBUILD_BUILD_ID:=0}
 echo "${HUNSPELL_VERSION}.${build}" > "${stage}/VERSION.txt"
 
@@ -61,9 +64,10 @@ pushd "$HUNSPELL_SOURCE_DIR"
         ;;
         darwin*)
             opts="-m$AUTOBUILD_ADDRSIZE -arch $AUTOBUILD_CONFIGURE_ARCH $LL_BUILD_RELEASE"
-            export CFLAGS="$opts"
+            plainopts="$(remove_cxxstd $opts)"
+            export CFLAGS="$plainopts"
             export CXXFLAGS="$opts"
-            export LDFLAGS="$opts"
+            export LDFLAGS="$plainopts"
             ./configure --prefix="$stage"
             make -j$(nproc)
             make install
@@ -88,7 +92,7 @@ pushd "$HUNSPELL_SOURCE_DIR"
         ;;
         linux*)
             opts="-m$AUTOBUILD_ADDRSIZE $LL_BUILD_RELEASE"
-            CFLAGS="$opts" CXXFLAGS="$opts" ./configure --prefix="$stage"
+            CFLAGS="$(remove_cxxstd $opts)" CXXFLAGS="$opts" ./configure --prefix="$stage"
             make -j$(nproc)
             make install
             mv "$stage/lib" "$stage/release"
