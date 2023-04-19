@@ -16,7 +16,6 @@ jobs:
         with:
           build-variables-ref: viewer-c++17
           addrsize: ${{ matrix.addrsize }}
-          build-variables-ref: viewer
 
   release:
     needs: build
