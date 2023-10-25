@@ -27,10 +27,18 @@ fi
 
 stage="$(pwd)/stage"
 
+# IMPORTANT: (Effectively) removing the code signing step for macOS
+# builds with this declaration during the move to GHA. It will
+# need to be added back in once we have a strategy for doing so.
+build_secrets_checkout=""
+
 # load autobuild provided shell functions and variables
 source_environment_tempfile="$stage/source_environment.sh"
 "$autobuild" source_environment > "$source_environment_tempfile"
 . "$source_environment_tempfile"
+
+# remove_cxxstd
+source "$(dirname "$AUTOBUILD_VARIABLES_FILE")/functions"
 
 build=${AUTOBUILD_BUILD_ID:=0}
 echo "${HUNSPELL_VERSION}.${build}" > "${stage}/VERSION.txt"
@@ -45,7 +53,10 @@ pushd "$HUNSPELL_SOURCE_DIR"
         windows*)
             load_vsvars
 
-            build_sln "src/win_api/hunspell.sln" "Release_dll|$AUTOBUILD_WIN_VSPLATFORM"
+            msbuild.exe "$(cygpath -w src/win_api/hunspell.sln)" \
+                -p:Platform=$AUTOBUILD_WIN_VSPLATFORM \
+                -p:Configuration="Release_dll" \
+                -p:PlatformToolset=v143
 
             mkdir -p "$stage/lib/release"
 
@@ -58,14 +69,15 @@ pushd "$HUNSPELL_SOURCE_DIR"
         ;;
         darwin*)
             opts="-m$AUTOBUILD_ADDRSIZE -arch $AUTOBUILD_CONFIGURE_ARCH $LL_BUILD_RELEASE"
-            export CFLAGS="$opts"
+            plainopts="$(remove_cxxstd $opts)"
+            export CFLAGS="$plainopts"
             export CXXFLAGS="$opts"
-            export LDFLAGS="$opts"
+            export LDFLAGS="$plainopts"
             ./configure --prefix="$stage"
-            make
+            make -j$(nproc)
             make install
             mkdir -p "$stage/lib/release"
-            mv "$stage/lib/"{*.a,*.dylib,*.alias} "$stage/lib/release"
+            mv "$stage/lib/"{*.a,*.dylib} "$stage/lib/release"
             pushd "$stage/lib/release"
                 fix_dylib_id libhunspell-*.dylib
               
@@ -85,8 +97,8 @@ pushd "$HUNSPELL_SOURCE_DIR"
         ;;
         linux*)
             opts="-m$AUTOBUILD_ADDRSIZE $LL_BUILD_RELEASE"
-            CFLAGS="$opts" CXXFLAGS="$opts" ./configure --prefix="$stage"
-            make
+            CFLAGS="$(remove_cxxstd $opts)" CXXFLAGS="$opts" ./configure --prefix="$stage"
+            make -j$(nproc)
             make install
             mv "$stage/lib" "$stage/release"
             mkdir -p "$stage/lib"
