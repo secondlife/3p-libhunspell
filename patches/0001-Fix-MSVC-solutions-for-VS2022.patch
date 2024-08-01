@@ -1,1696 +1,464 @@
-From e716224c87ef187112adc5cd85273e95908b7b0c Mon Sep 17 00:00:00 2001
+From 29173290ae00e7c5c5dd3812e8716b63bd7bfed2 Mon Sep 17 00:00:00 2001
 From: Rye Mutt <rye@alchemyviewer.org>
-Date: Thu, 1 Aug 2024 17:05:15 -0400
-Subject: [PATCH] Fix MSVC solutions for VS2022
+Date: Thu, 1 Aug 2024 18:48:17 -0400
+Subject: [PATCH] Fix up MSVC solution for VS2022
 
 ---
- msvc/hunspell.vcxproj    | 411 ++++++++++---------
- msvc/libhunspell.vcxproj | 838 ++++++++++++++++++++-------------------
- msvc/testparser.vcxproj  | 414 +++++++++----------
- 3 files changed, 845 insertions(+), 818 deletions(-)
+ msvc/hunspell.vcxproj    | 27 +++++++-------
+ msvc/libhunspell.vcxproj | 80 ++++++++++++++++++++++++++--------------
+ msvc/testparser.vcxproj  | 30 ++++++++-------
+ 3 files changed, 82 insertions(+), 55 deletions(-)
 
 diff --git a/msvc/hunspell.vcxproj b/msvc/hunspell.vcxproj
-index 4a98039..a8bede7 100644
+index 4a98039..aacc6c2 100644
 --- a/msvc/hunspell.vcxproj
 +++ b/msvc/hunspell.vcxproj
-@@ -1,206 +1,205 @@
--﻿<?xml version="1.0" encoding="utf-8"?>
--<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
--  <ItemGroup Label="ProjectConfigurations">
--    <ProjectConfiguration Include="Debug|Win32">
--      <Configuration>Debug</Configuration>
--      <Platform>Win32</Platform>
--    </ProjectConfiguration>
--    <ProjectConfiguration Include="Debug|x64">
--      <Configuration>Debug</Configuration>
--      <Platform>x64</Platform>
--    </ProjectConfiguration>
--    <ProjectConfiguration Include="Release|Win32">
--      <Configuration>Release</Configuration>
--      <Platform>Win32</Platform>
--    </ProjectConfiguration>
--    <ProjectConfiguration Include="Release|x64">
--      <Configuration>Release</Configuration>
--      <Platform>x64</Platform>
--    </ProjectConfiguration>
--  </ItemGroup>
--  <PropertyGroup Label="Globals">
--    <ProjectGuid>{6A0453F4-B12A-4810-B9A2-8AB059316ED7}</ProjectGuid>
--    <RootNamespace>hunspell</RootNamespace>
--    <Keyword>Win32Proj</Keyword>
+@@ -22,30 +22,29 @@
+     <ProjectGuid>{6A0453F4-B12A-4810-B9A2-8AB059316ED7}</ProjectGuid>
+     <RootNamespace>hunspell</RootNamespace>
+     <Keyword>Win32Proj</Keyword>
 -    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
--  </PropertyGroup>
--  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
--  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
--    <ConfigurationType>Application</ConfigurationType>
+   </PropertyGroup>
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+     <ConfigurationType>Application</ConfigurationType>
 -    <PlatformToolset>v140_xp</PlatformToolset>
 -    <CharacterSet>MultiByte</CharacterSet>
--    <WholeProgramOptimization>true</WholeProgramOptimization>
--  </PropertyGroup>
--  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
--    <ConfigurationType>Application</ConfigurationType>
+     <WholeProgramOptimization>true</WholeProgramOptimization>
++    <PlatformToolset>v143</PlatformToolset>
++    <CharacterSet>Unicode</CharacterSet>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+     <ConfigurationType>Application</ConfigurationType>
 -    <PlatformToolset>v140_xp</PlatformToolset>
 -    <CharacterSet>MultiByte</CharacterSet>
--    <WholeProgramOptimization>true</WholeProgramOptimization>
--  </PropertyGroup>
--  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
--    <ConfigurationType>Application</ConfigurationType>
+     <WholeProgramOptimization>true</WholeProgramOptimization>
++    <PlatformToolset>v143</PlatformToolset>
++    <CharacterSet>Unicode</CharacterSet>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+     <ConfigurationType>Application</ConfigurationType>
 -    <PlatformToolset>v140_xp</PlatformToolset>
 -    <CharacterSet>MultiByte</CharacterSet>
--  </PropertyGroup>
--  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
--    <ConfigurationType>Application</ConfigurationType>
++    <PlatformToolset>v143</PlatformToolset>
++    <CharacterSet>Unicode</CharacterSet>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+     <ConfigurationType>Application</ConfigurationType>
 -    <PlatformToolset>v140_xp</PlatformToolset>
 -    <CharacterSet>MultiByte</CharacterSet>
--  </PropertyGroup>
--  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
--  <ImportGroup Label="ExtensionSettings">
--  </ImportGroup>
--  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
--    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
--  </ImportGroup>
--  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
--    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
--  </ImportGroup>
--  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
--    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
--  </ImportGroup>
--  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
--    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
--  </ImportGroup>
--  <PropertyGroup Label="UserMacros" />
--  <PropertyGroup>
--    <_ProjectFileVersion>14.0.25420.1</_ProjectFileVersion>
--  </PropertyGroup>
--  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
--    <OutDir>$(SolutionDir)$(Configuration)\$(ProjectName)\</OutDir>
--    <IntDir>$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
--    <LinkIncremental>true</LinkIncremental>
--  </PropertyGroup>
--  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
--    <LinkIncremental>true</LinkIncremental>
--    <IntDir>$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
--  </PropertyGroup>
--  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
--    <OutDir>$(SolutionDir)$(Configuration)\$(ProjectName)\</OutDir>
--    <IntDir>$(Configuration)\$(ProjectName)\</IntDir>
--    <LinkIncremental>false</LinkIncremental>
--  </PropertyGroup>
--  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
--    <LinkIncremental>false</LinkIncremental>
--    <IntDir>$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
--  </PropertyGroup>
--  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
--    <ClCompile>
--      <Optimization>Disabled</Optimization>
--      <AdditionalIncludeDirectories>..\src\hunspell;..\src\parsers;.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
--      <PreprocessorDefinitions>W32;WIN32;_DEBUG;_CONSOLE;HUNSPELL_STATIC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
--      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
--      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
--      <PrecompiledHeader />
--      <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
--      <WarningLevel>Level4</WarningLevel>
--      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
--      <DisableSpecificWarnings>4127;4267;4706</DisableSpecificWarnings>
--    </ClCompile>
--    <Link>
--      <GenerateDebugInformation>true</GenerateDebugInformation>
--      <SubSystem>Console</SubSystem>
--      <RandomizedBaseAddress>false</RandomizedBaseAddress>
--      <DataExecutionPrevention />
--      <TargetMachine>MachineX86</TargetMachine>
--    </Link>
--  </ItemDefinitionGroup>
--  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
--    <ClCompile>
--      <Optimization>Disabled</Optimization>
--      <AdditionalIncludeDirectories>..\src\hunspell;..\src\parsers;.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
--      <PreprocessorDefinitions>W32;WIN32;_DEBUG;_CONSOLE;HUNSPELL_STATIC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
--      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
--      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
--      <PrecompiledHeader>
--      </PrecompiledHeader>
--      <WarningLevel>Level4</WarningLevel>
--      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
--      <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
--      <DisableSpecificWarnings>4127;4267;4706</DisableSpecificWarnings>
--    </ClCompile>
--    <Link>
--      <GenerateDebugInformation>true</GenerateDebugInformation>
--      <SubSystem>Console</SubSystem>
--      <RandomizedBaseAddress>false</RandomizedBaseAddress>
--      <DataExecutionPrevention>
--      </DataExecutionPrevention>
--    </Link>
--  </ItemDefinitionGroup>
--  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
--    <ClCompile>
--      <Optimization>Full</Optimization>
--      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
--      <AdditionalIncludeDirectories>..\src\hunspell;..\src\parsers;.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
--      <PreprocessorDefinitions>W32;WIN32;NDEBUG;_CONSOLE;HUNSPELL_STATIC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
--      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
--      <PrecompiledHeader />
--      <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
--      <WarningLevel>Level4</WarningLevel>
--      <DebugInformationFormat />
--      <DisableSpecificWarnings>4127;4267;4706</DisableSpecificWarnings>
--    </ClCompile>
--    <Link>
--      <GenerateDebugInformation>true</GenerateDebugInformation>
--      <SubSystem>Console</SubSystem>
--      <OptimizeReferences>true</OptimizeReferences>
--      <EnableCOMDATFolding>true</EnableCOMDATFolding>
--      <RandomizedBaseAddress>false</RandomizedBaseAddress>
--      <DataExecutionPrevention />
--      <TargetMachine>MachineX86</TargetMachine>
--    </Link>
--  </ItemDefinitionGroup>
--  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
--    <ClCompile>
--      <Optimization>Full</Optimization>
--      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
--      <AdditionalIncludeDirectories>..\src\hunspell;..\src\parsers;.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
--      <PreprocessorDefinitions>W32;WIN32;NDEBUG;_CONSOLE;HUNSPELL_STATIC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
--      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
--      <PrecompiledHeader>
--      </PrecompiledHeader>
--      <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
--      <WarningLevel>Level4</WarningLevel>
--      <DebugInformationFormat>
--      </DebugInformationFormat>
--      <DisableSpecificWarnings>4127;4267;4706</DisableSpecificWarnings>
--    </ClCompile>
--    <Link>
--      <GenerateDebugInformation>true</GenerateDebugInformation>
--      <SubSystem>Console</SubSystem>
--      <OptimizeReferences>true</OptimizeReferences>
--      <EnableCOMDATFolding>true</EnableCOMDATFolding>
--      <RandomizedBaseAddress>false</RandomizedBaseAddress>
--      <DataExecutionPrevention>
--      </DataExecutionPrevention>
--    </Link>
--  </ItemDefinitionGroup>
--  <ItemGroup>
--    <ClCompile Include="..\src\parsers\firstparser.cxx" />
--    <ClCompile Include="..\src\parsers\htmlparser.cxx" />
--    <ClCompile Include="..\src\parsers\latexparser.cxx" />
--    <ClCompile Include="..\src\parsers\manparser.cxx" />
--    <ClCompile Include="..\src\parsers\odfparser.cxx" />
--    <ClCompile Include="..\src\parsers\textparser.cxx" />
--    <ClCompile Include="..\src\parsers\xmlparser.cxx" />
--    <ClCompile Include="..\src\tools\hunspell.cxx" />
--  </ItemGroup>
--  <ItemGroup>
--    <ClInclude Include="..\src\parsers\firstparser.hxx" />
--    <ClInclude Include="..\src\parsers\htmlparser.hxx" />
--    <ClInclude Include="..\src\parsers\latexparser.hxx" />
--    <ClInclude Include="..\src\parsers\manparser.hxx" />
--    <ClInclude Include="..\src\parsers\odfparser.hxx" />
--    <ClInclude Include="..\src\parsers\textparser.hxx" />
--    <ClInclude Include="..\src\parsers\xmlparser.hxx" />
--  </ItemGroup>
--  <ItemGroup>
--    <ProjectReference Include="libhunspell.vcxproj">
--      <Project>{53609bb3-d874-465c-af7b-df626db0d89b}</Project>
--      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
--    </ProjectReference>
--  </ItemGroup>
--  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
--  <ImportGroup Label="ExtensionTargets">
--  </ImportGroup>
--</Project>
-+﻿<?xml version="1.0" encoding="utf-8"?>
-+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-+  <ItemGroup Label="ProjectConfigurations">
-+    <ProjectConfiguration Include="Debug|Win32">
-+      <Configuration>Debug</Configuration>
-+      <Platform>Win32</Platform>
-+    </ProjectConfiguration>
-+    <ProjectConfiguration Include="Debug|x64">
-+      <Configuration>Debug</Configuration>
-+      <Platform>x64</Platform>
-+    </ProjectConfiguration>
-+    <ProjectConfiguration Include="Release|Win32">
-+      <Configuration>Release</Configuration>
-+      <Platform>Win32</Platform>
-+    </ProjectConfiguration>
-+    <ProjectConfiguration Include="Release|x64">
-+      <Configuration>Release</Configuration>
-+      <Platform>x64</Platform>
-+    </ProjectConfiguration>
-+  </ItemGroup>
-+  <PropertyGroup Label="Globals">
-+    <ProjectGuid>{6A0453F4-B12A-4810-B9A2-8AB059316ED7}</ProjectGuid>
-+    <RootNamespace>hunspell</RootNamespace>
-+    <Keyword>Win32Proj</Keyword>
-+  </PropertyGroup>
-+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-+    <ConfigurationType>Application</ConfigurationType>
-+    <WholeProgramOptimization>true</WholeProgramOptimization>
 +    <PlatformToolset>v143</PlatformToolset>
 +    <CharacterSet>Unicode</CharacterSet>
-+  </PropertyGroup>
-+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-+    <ConfigurationType>Application</ConfigurationType>
-+    <WholeProgramOptimization>true</WholeProgramOptimization>
-+    <PlatformToolset>v143</PlatformToolset>
-+    <CharacterSet>Unicode</CharacterSet>
-+  </PropertyGroup>
-+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-+    <ConfigurationType>Application</ConfigurationType>
-+    <PlatformToolset>v143</PlatformToolset>
-+    <CharacterSet>Unicode</CharacterSet>
-+  </PropertyGroup>
-+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-+    <ConfigurationType>Application</ConfigurationType>
-+    <PlatformToolset>v143</PlatformToolset>
-+    <CharacterSet>Unicode</CharacterSet>
-+  </PropertyGroup>
-+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-+  <ImportGroup Label="ExtensionSettings">
-+  </ImportGroup>
-+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
-+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-+  </ImportGroup>
-+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
-+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-+  </ImportGroup>
-+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
-+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-+  </ImportGroup>
-+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
-+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-+  </ImportGroup>
-+  <PropertyGroup Label="UserMacros" />
-+  <PropertyGroup>
-+    <_ProjectFileVersion>14.0.25420.1</_ProjectFileVersion>
-+  </PropertyGroup>
-+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-+    <OutDir>$(SolutionDir)$(Configuration)\$(ProjectName)\</OutDir>
-+    <IntDir>$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
-+    <LinkIncremental>true</LinkIncremental>
-+  </PropertyGroup>
-+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-+    <LinkIncremental>true</LinkIncremental>
-+    <IntDir>$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
-+  </PropertyGroup>
-+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-+    <OutDir>$(SolutionDir)$(Configuration)\$(ProjectName)\</OutDir>
-+    <IntDir>$(Configuration)\$(ProjectName)\</IntDir>
-+    <LinkIncremental>false</LinkIncremental>
-+  </PropertyGroup>
-+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-+    <LinkIncremental>false</LinkIncremental>
-+    <IntDir>$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
-+  </PropertyGroup>
-+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-+    <ClCompile>
-+      <Optimization>Disabled</Optimization>
-+      <AdditionalIncludeDirectories>..\src\hunspell;..\src\parsers;.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-+      <PreprocessorDefinitions>W32;WIN32;_DEBUG;_CONSOLE;HUNSPELL_STATIC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+   </PropertyGroup>
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+   <ImportGroup Label="ExtensionSettings">
+@@ -89,6 +88,7 @@
+       <Optimization>Disabled</Optimization>
+       <AdditionalIncludeDirectories>..\src\hunspell;..\src\parsers;.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+       <PreprocessorDefinitions>W32;WIN32;_DEBUG;_CONSOLE;HUNSPELL_STATIC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
 +      <MinimalRebuild>true</MinimalRebuild>
-+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
-+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-+      <PrecompiledHeader />
-+      <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
-+      <WarningLevel>Level4</WarningLevel>
-+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-+      <DisableSpecificWarnings>4127;4267;4706</DisableSpecificWarnings>
+       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+       <PrecompiledHeader />
+@@ -96,11 +96,11 @@
+       <WarningLevel>Level4</WarningLevel>
+       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+       <DisableSpecificWarnings>4127;4267;4706</DisableSpecificWarnings>
 +      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-+    </ClCompile>
-+    <Link>
-+      <GenerateDebugInformation>true</GenerateDebugInformation>
-+      <SubSystem>Console</SubSystem>
-+      <DataExecutionPrevention />
-+      <TargetMachine>MachineX86</TargetMachine>
-+    </Link>
-+  </ItemDefinitionGroup>
-+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-+    <ClCompile>
-+      <Optimization>Disabled</Optimization>
-+      <AdditionalIncludeDirectories>..\src\hunspell;..\src\parsers;.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-+      <PreprocessorDefinitions>W32;WIN32;_DEBUG;_CONSOLE;HUNSPELL_STATIC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
-+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-+      <PrecompiledHeader>
-+      </PrecompiledHeader>
-+      <WarningLevel>Level4</WarningLevel>
-+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-+      <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
-+      <DisableSpecificWarnings>4127;4267;4706</DisableSpecificWarnings>
+     </ClCompile>
+     <Link>
+       <GenerateDebugInformation>true</GenerateDebugInformation>
+       <SubSystem>Console</SubSystem>
+-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+       <DataExecutionPrevention />
+       <TargetMachine>MachineX86</TargetMachine>
+     </Link>
+@@ -118,11 +118,11 @@
+       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+       <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
+       <DisableSpecificWarnings>4127;4267;4706</DisableSpecificWarnings>
 +      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-+    </ClCompile>
-+    <Link>
-+      <GenerateDebugInformation>true</GenerateDebugInformation>
-+      <SubSystem>Console</SubSystem>
-+      <DataExecutionPrevention>
-+      </DataExecutionPrevention>
-+    </Link>
-+  </ItemDefinitionGroup>
-+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-+    <ClCompile>
-+      <Optimization>Full</Optimization>
-+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-+      <AdditionalIncludeDirectories>..\src\hunspell;..\src\parsers;.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-+      <PreprocessorDefinitions>W32;WIN32;NDEBUG;_CONSOLE;HUNSPELL_STATIC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-+      <PrecompiledHeader />
-+      <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
-+      <WarningLevel>Level4</WarningLevel>
-+      <DebugInformationFormat />
-+      <DisableSpecificWarnings>4127;4267;4706</DisableSpecificWarnings>
+     </ClCompile>
+     <Link>
+       <GenerateDebugInformation>true</GenerateDebugInformation>
+       <SubSystem>Console</SubSystem>
+-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+       <DataExecutionPrevention>
+       </DataExecutionPrevention>
+     </Link>
+@@ -139,15 +139,14 @@
+       <WarningLevel>Level4</WarningLevel>
+       <DebugInformationFormat />
+       <DisableSpecificWarnings>4127;4267;4706</DisableSpecificWarnings>
 +      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-+    </ClCompile>
-+    <Link>
-+      <GenerateDebugInformation>true</GenerateDebugInformation>
-+      <SubSystem>Console</SubSystem>
-+      <OptimizeReferences>true</OptimizeReferences>
-+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-+      <DataExecutionPrevention />
-+    </Link>
-+  </ItemDefinitionGroup>
-+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-+    <ClCompile>
-+      <Optimization>Full</Optimization>
-+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-+      <AdditionalIncludeDirectories>..\src\hunspell;..\src\parsers;.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-+      <PreprocessorDefinitions>W32;WIN32;NDEBUG;_CONSOLE;HUNSPELL_STATIC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-+      <PrecompiledHeader>
-+      </PrecompiledHeader>
-+      <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
-+      <WarningLevel>Level4</WarningLevel>
-+      <DebugInformationFormat>
-+      </DebugInformationFormat>
-+      <DisableSpecificWarnings>4127;4267;4706</DisableSpecificWarnings>
+     </ClCompile>
+     <Link>
+       <GenerateDebugInformation>true</GenerateDebugInformation>
+       <SubSystem>Console</SubSystem>
+       <OptimizeReferences>true</OptimizeReferences>
+       <EnableCOMDATFolding>true</EnableCOMDATFolding>
+-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+       <DataExecutionPrevention />
+-      <TargetMachine>MachineX86</TargetMachine>
+     </Link>
+   </ItemDefinitionGroup>
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+@@ -164,13 +163,13 @@
+       <DebugInformationFormat>
+       </DebugInformationFormat>
+       <DisableSpecificWarnings>4127;4267;4706</DisableSpecificWarnings>
 +      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-+    </ClCompile>
-+    <Link>
-+      <GenerateDebugInformation>true</GenerateDebugInformation>
-+      <SubSystem>Console</SubSystem>
-+      <OptimizeReferences>true</OptimizeReferences>
-+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-+      <DataExecutionPrevention>
-+      </DataExecutionPrevention>
-+    </Link>
-+  </ItemDefinitionGroup>
-+  <ItemGroup>
-+    <ClCompile Include="..\src\parsers\firstparser.cxx" />
-+    <ClCompile Include="..\src\parsers\htmlparser.cxx" />
-+    <ClCompile Include="..\src\parsers\latexparser.cxx" />
-+    <ClCompile Include="..\src\parsers\manparser.cxx" />
-+    <ClCompile Include="..\src\parsers\odfparser.cxx" />
-+    <ClCompile Include="..\src\parsers\textparser.cxx" />
-+    <ClCompile Include="..\src\parsers\xmlparser.cxx" />
-+    <ClCompile Include="..\src\tools\hunspell.cxx" />
-+  </ItemGroup>
-+  <ItemGroup>
-+    <ClInclude Include="..\src\parsers\firstparser.hxx" />
-+    <ClInclude Include="..\src\parsers\htmlparser.hxx" />
-+    <ClInclude Include="..\src\parsers\latexparser.hxx" />
-+    <ClInclude Include="..\src\parsers\manparser.hxx" />
-+    <ClInclude Include="..\src\parsers\odfparser.hxx" />
-+    <ClInclude Include="..\src\parsers\textparser.hxx" />
-+    <ClInclude Include="..\src\parsers\xmlparser.hxx" />
-+  </ItemGroup>
-+  <ItemGroup>
-+    <ProjectReference Include="libhunspell.vcxproj">
-+      <Project>{53609bb3-d874-465c-af7b-df626db0d89b}</Project>
-+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-+    </ProjectReference>
-+  </ItemGroup>
-+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-+  <ImportGroup Label="ExtensionTargets">
-+  </ImportGroup>
-+</Project>
-\ No newline at end of file
+     </ClCompile>
+     <Link>
+       <GenerateDebugInformation>true</GenerateDebugInformation>
+       <SubSystem>Console</SubSystem>
+       <OptimizeReferences>true</OptimizeReferences>
+       <EnableCOMDATFolding>true</EnableCOMDATFolding>
+-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+       <DataExecutionPrevention>
+       </DataExecutionPrevention>
+     </Link>
 diff --git a/msvc/libhunspell.vcxproj b/msvc/libhunspell.vcxproj
-index a0772da..ab2004d 100644
+index a0772da..dd7ffee 100644
 --- a/msvc/libhunspell.vcxproj
 +++ b/msvc/libhunspell.vcxproj
-@@ -1,406 +1,432 @@
--﻿<?xml version="1.0" encoding="utf-8"?>
--<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
--  <ItemGroup Label="ProjectConfigurations">
--    <ProjectConfiguration Include="Debug_dll|Win32">
--      <Configuration>Debug_dll</Configuration>
--      <Platform>Win32</Platform>
--    </ProjectConfiguration>
--    <ProjectConfiguration Include="Debug_dll|x64">
--      <Configuration>Debug_dll</Configuration>
--      <Platform>x64</Platform>
--    </ProjectConfiguration>
--    <ProjectConfiguration Include="Debug|Win32">
--      <Configuration>Debug</Configuration>
--      <Platform>Win32</Platform>
--    </ProjectConfiguration>
--    <ProjectConfiguration Include="Debug|x64">
--      <Configuration>Debug</Configuration>
--      <Platform>x64</Platform>
--    </ProjectConfiguration>
--    <ProjectConfiguration Include="Release_dll|Win32">
--      <Configuration>Release_dll</Configuration>
--      <Platform>Win32</Platform>
--    </ProjectConfiguration>
--    <ProjectConfiguration Include="Release_dll|x64">
--      <Configuration>Release_dll</Configuration>
--      <Platform>x64</Platform>
--    </ProjectConfiguration>
--    <ProjectConfiguration Include="Release|Win32">
--      <Configuration>Release</Configuration>
--      <Platform>Win32</Platform>
--    </ProjectConfiguration>
--    <ProjectConfiguration Include="Release|x64">
--      <Configuration>Release</Configuration>
--      <Platform>x64</Platform>
--    </ProjectConfiguration>
--  </ItemGroup>
--  <PropertyGroup Label="Globals">
--    <ProjectGuid>{53609BB3-D874-465C-AF7B-DF626DB0D89B}</ProjectGuid>
--    <RootNamespace>Hunspell</RootNamespace>
--    <Keyword>Win32Proj</Keyword>
+@@ -38,60 +38,60 @@
+     <ProjectGuid>{53609BB3-D874-465C-AF7B-DF626DB0D89B}</ProjectGuid>
+     <RootNamespace>Hunspell</RootNamespace>
+     <Keyword>Win32Proj</Keyword>
 -    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
--  </PropertyGroup>
--  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
--  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_dll|Win32'" Label="Configuration">
--    <ConfigurationType>DynamicLibrary</ConfigurationType>
--    <PlatformToolset>v140_xp</PlatformToolset>
--    <UseOfMfc>false</UseOfMfc>
--    <CharacterSet>MultiByte</CharacterSet>
--  </PropertyGroup>
--  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_dll|x64'" Label="Configuration">
--    <ConfigurationType>DynamicLibrary</ConfigurationType>
--    <PlatformToolset>v140_xp</PlatformToolset>
--    <UseOfMfc>false</UseOfMfc>
--    <CharacterSet>MultiByte</CharacterSet>
--  </PropertyGroup>
--  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_dll|Win32'" Label="Configuration">
--    <ConfigurationType>DynamicLibrary</ConfigurationType>
--    <PlatformToolset>v140_xp</PlatformToolset>
--    <UseOfMfc>false</UseOfMfc>
--    <CharacterSet>MultiByte</CharacterSet>
--    <WholeProgramOptimization>true</WholeProgramOptimization>
--  </PropertyGroup>
--  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_dll|x64'" Label="Configuration">
--    <ConfigurationType>DynamicLibrary</ConfigurationType>
--    <PlatformToolset>v140_xp</PlatformToolset>
--    <UseOfMfc>false</UseOfMfc>
--    <CharacterSet>MultiByte</CharacterSet>
--    <WholeProgramOptimization>true</WholeProgramOptimization>
--  </PropertyGroup>
--  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
--    <ConfigurationType>StaticLibrary</ConfigurationType>
--    <PlatformToolset>v140_xp</PlatformToolset>
--    <UseOfMfc>false</UseOfMfc>
--    <CharacterSet>MultiByte</CharacterSet>
--    <WholeProgramOptimization>true</WholeProgramOptimization>
--  </PropertyGroup>
--  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
--    <ConfigurationType>StaticLibrary</ConfigurationType>
--    <PlatformToolset>v140_xp</PlatformToolset>
--    <UseOfMfc>false</UseOfMfc>
--    <CharacterSet>MultiByte</CharacterSet>
--    <WholeProgramOptimization>true</WholeProgramOptimization>
--  </PropertyGroup>
--  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
--    <ConfigurationType>StaticLibrary</ConfigurationType>
--    <PlatformToolset>v140_xp</PlatformToolset>
--    <UseOfMfc>false</UseOfMfc>
--    <CharacterSet>MultiByte</CharacterSet>
--  </PropertyGroup>
--  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
--    <ConfigurationType>StaticLibrary</ConfigurationType>
--    <PlatformToolset>v140_xp</PlatformToolset>
--    <UseOfMfc>false</UseOfMfc>
--    <CharacterSet>MultiByte</CharacterSet>
--  </PropertyGroup>
--  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
--  <ImportGroup Label="ExtensionSettings">
--  </ImportGroup>
--  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug_dll|Win32'" Label="PropertySheets">
--    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
--  </ImportGroup>
--  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug_dll|x64'" Label="PropertySheets">
--    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
--  </ImportGroup>
--  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_dll|Win32'" Label="PropertySheets">
--    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
--  </ImportGroup>
--  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_dll|x64'" Label="PropertySheets">
--    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
--  </ImportGroup>
--  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
--    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
--  </ImportGroup>
--  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
--    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
--  </ImportGroup>
--  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
--    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
--  </ImportGroup>
--  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
--    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
--  </ImportGroup>
--  <PropertyGroup Label="UserMacros" />
--  <PropertyGroup>
--    <_ProjectFileVersion>14.0.25420.1</_ProjectFileVersion>
--  </PropertyGroup>
--  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
--    <OutDir>$(SolutionDir)$(Configuration)\$(ProjectName)\</OutDir>
--    <IntDir>$(Configuration)\$(ProjectName)\</IntDir>
--  </PropertyGroup>
--  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
--    <OutDir>$(SolutionDir)$(Configuration)\$(ProjectName)\</OutDir>
--    <IntDir>$(Configuration)\$(ProjectName)\</IntDir>
--  </PropertyGroup>
--  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_dll|Win32'">
--    <OutDir>$(SolutionDir)$(Configuration)\$(ProjectName)\</OutDir>
--    <IntDir>$(Configuration)\$(ProjectName)\</IntDir>
--    <LinkIncremental />
--  </PropertyGroup>
--  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_dll|x64'">
--    <LinkIncremental />
--    <IntDir>$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
--  </PropertyGroup>
--  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_dll|Win32'">
--    <OutDir>$(SolutionDir)$(Configuration)\$(ProjectName)\</OutDir>
--    <IntDir>$(Configuration)\$(ProjectName)\</IntDir>
--    <LinkIncremental>true</LinkIncremental>
--  </PropertyGroup>
--  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_dll|x64'">
--    <LinkIncremental>true</LinkIncremental>
--    <IntDir>$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
--  </PropertyGroup>
--  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
--    <IntDir>$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
--  </PropertyGroup>
--  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
--    <IntDir>$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
--  </PropertyGroup>
--  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
--    <PreBuildEvent>
--      <Command>echo N | copy /-Y ..\src\hunspell\hunvisapi.h.in ..\src\hunspell\hunvisapi.h</Command>
--    </PreBuildEvent>
--    <ClCompile>
--      <Optimization>Disabled</Optimization>
--      <AdditionalIncludeDirectories>..\src\hunspell;.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
--      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;HUNSPELL_STATIC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
--      <MinimalRebuild>false</MinimalRebuild>
--      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
--      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
--      <PrecompiledHeader />
--      <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
--      <WarningLevel>Level4</WarningLevel>
--      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
--      <DisableSpecificWarnings>4706;4251;4267</DisableSpecificWarnings>
--    </ClCompile>
--    <Lib>
--      <AdditionalOptions>/MACHINE:X86 %(AdditionalOptions)</AdditionalOptions>
--    </Lib>
--  </ItemDefinitionGroup>
--  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
--    <PreBuildEvent>
--      <Command>echo N | copy /-Y ..\src\hunspell\hunvisapi.h.in ..\src\hunspell\hunvisapi.h</Command>
--    </PreBuildEvent>
--    <ClCompile>
--      <Optimization>Disabled</Optimization>
--      <AdditionalIncludeDirectories>..\src\hunspell;.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
--      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;HUNSPELL_STATIC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
--      <MinimalRebuild>false</MinimalRebuild>
--      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
--      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
--      <PrecompiledHeader>
--      </PrecompiledHeader>
--      <WarningLevel>Level4</WarningLevel>
--      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
--      <DisableSpecificWarnings>4706;4251;4267</DisableSpecificWarnings>
--    </ClCompile>
--    <Lib />
--  </ItemDefinitionGroup>
--  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
--    <PreBuildEvent>
--      <Command>echo N | copy /-Y ..\src\hunspell\hunvisapi.h.in ..\src\hunspell\hunvisapi.h</Command>
--    </PreBuildEvent>
--    <ClCompile>
--      <Optimization>Full</Optimization>
--      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
--      <AdditionalIncludeDirectories>..\src\hunspell;.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
--      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;HUNSPELL_STATIC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
--      <StringPooling>true</StringPooling>
--      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
--      <FunctionLevelLinking>true</FunctionLevelLinking>
--      <PrecompiledHeader />
--      <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
--      <WarningLevel>Level4</WarningLevel>
--      <DebugInformationFormat />
--      <DisableSpecificWarnings>4706;4251;4267</DisableSpecificWarnings>
--    </ClCompile>
--    <ResourceCompile>
--      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
--      <Culture>0x0409</Culture>
--    </ResourceCompile>
--    <Bscmake>
--      <SuppressStartupBanner>false</SuppressStartupBanner>
--    </Bscmake>
--  </ItemDefinitionGroup>
--  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
--    <PreBuildEvent>
--      <Command>echo N | copy /-Y ..\src\hunspell\hunvisapi.h.in ..\src\hunspell\hunvisapi.h</Command>
--    </PreBuildEvent>
--    <ClCompile>
--      <Optimization>Full</Optimization>
--      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
--      <AdditionalIncludeDirectories>..\src\hunspell;.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
--      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;HUNSPELL_STATIC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
--      <StringPooling>true</StringPooling>
--      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
--      <FunctionLevelLinking>true</FunctionLevelLinking>
--      <PrecompiledHeader>
--      </PrecompiledHeader>
--      <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
--      <WarningLevel>Level4</WarningLevel>
--      <DebugInformationFormat>
--      </DebugInformationFormat>
--      <DisableSpecificWarnings>4706;4251;4267</DisableSpecificWarnings>
--    </ClCompile>
--    <ResourceCompile>
--      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
--      <Culture>0x0409</Culture>
--    </ResourceCompile>
--    <Bscmake>
--      <SuppressStartupBanner>false</SuppressStartupBanner>
--    </Bscmake>
--  </ItemDefinitionGroup>
--  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_dll|Win32'">
--    <PreBuildEvent>
--      <Command>echo N | copy /-Y ..\src\hunspell\hunvisapi.h.in ..\src\hunspell\hunvisapi.h</Command>
--    </PreBuildEvent>
--    <ClCompile>
--      <Optimization>Full</Optimization>
--      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
--      <AdditionalIncludeDirectories>..\src\hunspell;.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
--      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;BUILDING_LIBHUNSPELL;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
--      <StringPooling>true</StringPooling>
--      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
--      <FunctionLevelLinking>true</FunctionLevelLinking>
--      <PrecompiledHeader />
--      <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
--      <WarningLevel>Level4</WarningLevel>
--      <DebugInformationFormat />
--      <DisableSpecificWarnings>4706;4251;4267</DisableSpecificWarnings>
--    </ClCompile>
--    <ResourceCompile>
--      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
--      <Culture>0x0409</Culture>
--    </ResourceCompile>
--    <Link>
--      <GenerateDebugInformation>false</GenerateDebugInformation>
--      <SubSystem>Windows</SubSystem>
--      <OptimizeReferences>true</OptimizeReferences>
--      <EnableCOMDATFolding>true</EnableCOMDATFolding>
--      <RandomizedBaseAddress>false</RandomizedBaseAddress>
--      <DataExecutionPrevention />
--    </Link>
--  </ItemDefinitionGroup>
--  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_dll|x64'">
--    <PreBuildEvent>
--      <Command>echo N | copy /-Y ..\src\hunspell\hunvisapi.h.in ..\src\hunspell\hunvisapi.h</Command>
--    </PreBuildEvent>
--    <ClCompile>
--      <Optimization>Full</Optimization>
--      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
--      <AdditionalIncludeDirectories>..\src\hunspell;.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
--      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;BUILDING_LIBHUNSPELL;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
--      <StringPooling>true</StringPooling>
--      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
--      <FunctionLevelLinking>true</FunctionLevelLinking>
--      <PrecompiledHeader>
--      </PrecompiledHeader>
--      <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
--      <WarningLevel>Level4</WarningLevel>
--      <DebugInformationFormat>
--      </DebugInformationFormat>
--      <DisableSpecificWarnings>4706;4251;4267</DisableSpecificWarnings>
--    </ClCompile>
--    <ResourceCompile>
--      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
--      <Culture>0x0409</Culture>
--    </ResourceCompile>
--    <Link>
--      <GenerateDebugInformation>false</GenerateDebugInformation>
--      <OptimizeReferences>true</OptimizeReferences>
--      <EnableCOMDATFolding>true</EnableCOMDATFolding>
--      <RandomizedBaseAddress>false</RandomizedBaseAddress>
--      <DataExecutionPrevention>
--      </DataExecutionPrevention>
--      <SubSystem>Windows</SubSystem>
--    </Link>
--  </ItemDefinitionGroup>
--  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_dll|Win32'">
--    <PreBuildEvent>
--      <Command>echo N | copy /-Y ..\src\hunspell\hunvisapi.h.in ..\src\hunspell\hunvisapi.h</Command>
--    </PreBuildEvent>
--    <ClCompile>
--      <Optimization>Disabled</Optimization>
--      <AdditionalIncludeDirectories>..\src\hunspell;.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
--      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;BUILDING_LIBHUNSPELL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
--      <MinimalRebuild>false</MinimalRebuild>
--      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
--      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
--      <PrecompiledHeader />
--      <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
--      <WarningLevel>Level4</WarningLevel>
--      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
--      <DisableSpecificWarnings>4706;4251;4267</DisableSpecificWarnings>
--    </ClCompile>
--    <Link>
--      <GenerateDebugInformation>true</GenerateDebugInformation>
--      <SubSystem>Windows</SubSystem>
--      <RandomizedBaseAddress>false</RandomizedBaseAddress>
--      <DataExecutionPrevention />
--      <TargetMachine>MachineX86</TargetMachine>
--    </Link>
--  </ItemDefinitionGroup>
--  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_dll|x64'">
--    <PreBuildEvent>
--      <Command>echo N | copy /-Y ..\src\hunspell\hunvisapi.h.in ..\src\hunspell\hunvisapi.h</Command>
--    </PreBuildEvent>
--    <ClCompile>
--      <Optimization>Disabled</Optimization>
--      <AdditionalIncludeDirectories>..\src\hunspell;.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
--      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;BUILDING_LIBHUNSPELL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
--      <MinimalRebuild>false</MinimalRebuild>
--      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
--      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
--      <PrecompiledHeader>
--      </PrecompiledHeader>
--      <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
--      <WarningLevel>Level4</WarningLevel>
--      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
--      <DisableSpecificWarnings>4706;4251;4267</DisableSpecificWarnings>
--    </ClCompile>
--    <Link>
--      <GenerateDebugInformation>true</GenerateDebugInformation>
--      <SubSystem>Windows</SubSystem>
--      <RandomizedBaseAddress>false</RandomizedBaseAddress>
--      <DataExecutionPrevention>
--      </DataExecutionPrevention>
--    </Link>
--  </ItemDefinitionGroup>
--  <ItemGroup>
--    <ClInclude Include="..\src\hunspell\affentry.hxx" />
--    <ClInclude Include="..\src\hunspell\affixmgr.hxx" />
--    <ClInclude Include="..\src\hunspell\atypes.hxx" />
--    <ClInclude Include="..\src\hunspell\baseaffix.hxx" />
--    <ClInclude Include="..\src\hunspell\csutil.hxx" />
--    <ClInclude Include="..\src\hunspell\filemgr.hxx" />
--    <ClInclude Include="..\src\hunspell\hashmgr.hxx" />
--    <ClInclude Include="..\src\hunspell\htypes.hxx" />
--    <ClInclude Include="..\src\hunspell\hunspell.h" />
--    <ClInclude Include="..\src\hunspell\hunspell.hxx" />
--    <ClInclude Include="..\src\hunspell\hunzip.hxx" />
--    <ClInclude Include="..\src\hunspell\langnum.hxx" />
--    <ClInclude Include="..\src\hunspell\phonet.hxx" />
--    <ClInclude Include="..\src\hunspell\replist.hxx" />
--    <ClInclude Include="..\src\hunspell\suggestmgr.hxx" />
--    <ClInclude Include="..\src\hunspell\w_char.hxx" />
--    <ClInclude Include="config.h" />
--  </ItemGroup>
--  <ItemGroup>
--    <ResourceCompile Include="Hunspell.rc" />
--  </ItemGroup>
--  <ItemGroup>
--    <ClCompile Include="..\src\hunspell\affentry.cxx" />
--    <ClCompile Include="..\src\hunspell\affixmgr.cxx" />
--    <ClCompile Include="..\src\hunspell\csutil.cxx" />
--    <ClCompile Include="..\src\hunspell\filemgr.cxx" />
--    <ClCompile Include="..\src\hunspell\hashmgr.cxx" />
--    <ClCompile Include="..\src\hunspell\hunspell.cxx" />
--    <ClCompile Include="..\src\hunspell\hunzip.cxx" />
--    <ClCompile Include="..\src\hunspell\phonet.cxx" />
--    <ClCompile Include="..\src\hunspell\replist.cxx" />
--    <ClCompile Include="..\src\hunspell\suggestmgr.cxx" />
--  </ItemGroup>
--  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
--  <ImportGroup Label="ExtensionTargets">
--  </ImportGroup>
--</Project>
-+﻿<?xml version="1.0" encoding="utf-8"?>
-+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-+  <ItemGroup Label="ProjectConfigurations">
-+    <ProjectConfiguration Include="Debug_dll|Win32">
-+      <Configuration>Debug_dll</Configuration>
-+      <Platform>Win32</Platform>
-+    </ProjectConfiguration>
-+    <ProjectConfiguration Include="Debug_dll|x64">
-+      <Configuration>Debug_dll</Configuration>
-+      <Platform>x64</Platform>
-+    </ProjectConfiguration>
-+    <ProjectConfiguration Include="Debug|Win32">
-+      <Configuration>Debug</Configuration>
-+      <Platform>Win32</Platform>
-+    </ProjectConfiguration>
-+    <ProjectConfiguration Include="Debug|x64">
-+      <Configuration>Debug</Configuration>
-+      <Platform>x64</Platform>
-+    </ProjectConfiguration>
-+    <ProjectConfiguration Include="Release_dll|Win32">
-+      <Configuration>Release_dll</Configuration>
-+      <Platform>Win32</Platform>
-+    </ProjectConfiguration>
-+    <ProjectConfiguration Include="Release_dll|x64">
-+      <Configuration>Release_dll</Configuration>
-+      <Platform>x64</Platform>
-+    </ProjectConfiguration>
-+    <ProjectConfiguration Include="Release|Win32">
-+      <Configuration>Release</Configuration>
-+      <Platform>Win32</Platform>
-+    </ProjectConfiguration>
-+    <ProjectConfiguration Include="Release|x64">
-+      <Configuration>Release</Configuration>
-+      <Platform>x64</Platform>
-+    </ProjectConfiguration>
-+  </ItemGroup>
-+  <PropertyGroup Label="Globals">
-+    <ProjectGuid>{53609BB3-D874-465C-AF7B-DF626DB0D89B}</ProjectGuid>
-+    <RootNamespace>Hunspell</RootNamespace>
-+    <Keyword>Win32Proj</Keyword>
 +    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-+  </PropertyGroup>
-+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_dll|Win32'" Label="Configuration">
-+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+   </PropertyGroup>
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_dll|Win32'" Label="Configuration">
+     <ConfigurationType>DynamicLibrary</ConfigurationType>
+-    <PlatformToolset>v140_xp</PlatformToolset>
 +    <PlatformToolset>v143</PlatformToolset>
-+    <UseOfMfc>false</UseOfMfc>
-+    <CharacterSet>MultiByte</CharacterSet>
-+  </PropertyGroup>
-+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_dll|x64'" Label="Configuration">
-+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+     <UseOfMfc>false</UseOfMfc>
+     <CharacterSet>MultiByte</CharacterSet>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_dll|x64'" Label="Configuration">
+     <ConfigurationType>DynamicLibrary</ConfigurationType>
+-    <PlatformToolset>v140_xp</PlatformToolset>
 +    <PlatformToolset>v143</PlatformToolset>
-+    <UseOfMfc>false</UseOfMfc>
-+    <CharacterSet>MultiByte</CharacterSet>
-+  </PropertyGroup>
-+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_dll|Win32'" Label="Configuration">
-+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+     <UseOfMfc>false</UseOfMfc>
+     <CharacterSet>MultiByte</CharacterSet>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_dll|Win32'" Label="Configuration">
+     <ConfigurationType>DynamicLibrary</ConfigurationType>
+-    <PlatformToolset>v140_xp</PlatformToolset>
 +    <PlatformToolset>v143</PlatformToolset>
-+    <UseOfMfc>false</UseOfMfc>
-+    <CharacterSet>MultiByte</CharacterSet>
-+    <WholeProgramOptimization>true</WholeProgramOptimization>
-+  </PropertyGroup>
-+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_dll|x64'" Label="Configuration">
-+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+     <UseOfMfc>false</UseOfMfc>
+     <CharacterSet>MultiByte</CharacterSet>
+     <WholeProgramOptimization>true</WholeProgramOptimization>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_dll|x64'" Label="Configuration">
+     <ConfigurationType>DynamicLibrary</ConfigurationType>
+-    <PlatformToolset>v140_xp</PlatformToolset>
 +    <PlatformToolset>v143</PlatformToolset>
-+    <UseOfMfc>false</UseOfMfc>
-+    <CharacterSet>MultiByte</CharacterSet>
-+    <WholeProgramOptimization>true</WholeProgramOptimization>
-+  </PropertyGroup>
-+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-+    <ConfigurationType>StaticLibrary</ConfigurationType>
-+    <UseOfMfc>false</UseOfMfc>
-+    <CharacterSet>MultiByte</CharacterSet>
-+    <WholeProgramOptimization>true</WholeProgramOptimization>
+     <UseOfMfc>false</UseOfMfc>
+     <CharacterSet>MultiByte</CharacterSet>
+     <WholeProgramOptimization>true</WholeProgramOptimization>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+     <ConfigurationType>StaticLibrary</ConfigurationType>
+-    <PlatformToolset>v140_xp</PlatformToolset>
+     <UseOfMfc>false</UseOfMfc>
+     <CharacterSet>MultiByte</CharacterSet>
+     <WholeProgramOptimization>true</WholeProgramOptimization>
 +    <PlatformToolset>v143</PlatformToolset>
-+  </PropertyGroup>
-+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-+    <ConfigurationType>StaticLibrary</ConfigurationType>
-+    <UseOfMfc>false</UseOfMfc>
-+    <CharacterSet>MultiByte</CharacterSet>
-+    <WholeProgramOptimization>true</WholeProgramOptimization>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+     <ConfigurationType>StaticLibrary</ConfigurationType>
+-    <PlatformToolset>v140_xp</PlatformToolset>
+     <UseOfMfc>false</UseOfMfc>
+     <CharacterSet>MultiByte</CharacterSet>
+     <WholeProgramOptimization>true</WholeProgramOptimization>
 +    <PlatformToolset>v143</PlatformToolset>
-+  </PropertyGroup>
-+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-+    <ConfigurationType>StaticLibrary</ConfigurationType>
-+    <UseOfMfc>false</UseOfMfc>
-+    <CharacterSet>MultiByte</CharacterSet>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+     <ConfigurationType>StaticLibrary</ConfigurationType>
+-    <PlatformToolset>v140_xp</PlatformToolset>
+     <UseOfMfc>false</UseOfMfc>
+     <CharacterSet>MultiByte</CharacterSet>
 +    <PlatformToolset>v143</PlatformToolset>
-+  </PropertyGroup>
-+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-+    <ConfigurationType>StaticLibrary</ConfigurationType>
-+    <UseOfMfc>false</UseOfMfc>
-+    <CharacterSet>MultiByte</CharacterSet>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+     <ConfigurationType>StaticLibrary</ConfigurationType>
+-    <PlatformToolset>v140_xp</PlatformToolset>
+     <UseOfMfc>false</UseOfMfc>
+     <CharacterSet>MultiByte</CharacterSet>
 +    <PlatformToolset>v143</PlatformToolset>
-+  </PropertyGroup>
-+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-+  <ImportGroup Label="ExtensionSettings">
-+  </ImportGroup>
-+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug_dll|Win32'" Label="PropertySheets">
-+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-+  </ImportGroup>
-+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug_dll|x64'" Label="PropertySheets">
-+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-+  </ImportGroup>
-+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_dll|Win32'" Label="PropertySheets">
-+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-+  </ImportGroup>
-+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_dll|x64'" Label="PropertySheets">
-+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-+  </ImportGroup>
-+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
-+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-+  </ImportGroup>
-+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
-+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-+  </ImportGroup>
-+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
-+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-+  </ImportGroup>
-+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
-+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-+  </ImportGroup>
-+  <PropertyGroup Label="UserMacros" />
-+  <PropertyGroup>
-+    <_ProjectFileVersion>14.0.25420.1</_ProjectFileVersion>
-+  </PropertyGroup>
-+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-+    <OutDir>$(SolutionDir)$(Configuration)\$(ProjectName)\</OutDir>
-+    <IntDir>$(Configuration)\$(ProjectName)\</IntDir>
-+  </PropertyGroup>
-+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-+    <OutDir>$(SolutionDir)$(Configuration)\$(ProjectName)\</OutDir>
-+    <IntDir>$(Configuration)\$(ProjectName)\</IntDir>
-+  </PropertyGroup>
-+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_dll|Win32'">
-+    <OutDir>$(SolutionDir)$(Configuration)\$(ProjectName)\</OutDir>
-+    <IntDir>$(Configuration)\$(ProjectName)\</IntDir>
-+    <LinkIncremental />
-+  </PropertyGroup>
-+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_dll|x64'">
-+    <LinkIncremental />
-+    <IntDir>$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
-+  </PropertyGroup>
-+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_dll|Win32'">
-+    <OutDir>$(SolutionDir)$(Configuration)\$(ProjectName)\</OutDir>
-+    <IntDir>$(Configuration)\$(ProjectName)\</IntDir>
-+    <LinkIncremental>true</LinkIncremental>
-+  </PropertyGroup>
-+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_dll|x64'">
-+    <LinkIncremental>true</LinkIncremental>
-+    <IntDir>$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
-+  </PropertyGroup>
-+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-+    <IntDir>$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
-+  </PropertyGroup>
-+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-+    <IntDir>$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
-+  </PropertyGroup>
-+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-+    <PreBuildEvent>
-+      <Command>echo N | copy /-Y ..\src\hunspell\hunvisapi.h.in ..\src\hunspell\hunvisapi.h</Command>
-+    </PreBuildEvent>
-+    <ClCompile>
-+      <Optimization>Disabled</Optimization>
-+      <AdditionalIncludeDirectories>..\src\hunspell;.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;HUNSPELL_STATIC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-+      <MinimalRebuild>false</MinimalRebuild>
-+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
-+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-+      <PrecompiledHeader />
-+      <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
-+      <WarningLevel>Level4</WarningLevel>
+   </PropertyGroup>
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+   <ImportGroup Label="ExtensionSettings">
+@@ -170,8 +170,11 @@
+       <PrecompiledHeader />
+       <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
+       <WarningLevel>Level4</WarningLevel>
+-      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
 +      <DebugInformationFormat>OldStyle</DebugInformationFormat>
-+      <DisableSpecificWarnings>4706;4251;4267</DisableSpecificWarnings>
+       <DisableSpecificWarnings>4706;4251;4267</DisableSpecificWarnings>
 +      <ConformanceMode>true</ConformanceMode>
 +      <LanguageStandard>stdcpp17</LanguageStandard>
 +      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-+    </ClCompile>
-+    <Lib>
-+      <AdditionalOptions>/MACHINE:X86 %(AdditionalOptions)</AdditionalOptions>
-+    </Lib>
-+  </ItemDefinitionGroup>
-+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-+    <PreBuildEvent>
-+      <Command>echo N | copy /-Y ..\src\hunspell\hunvisapi.h.in ..\src\hunspell\hunvisapi.h</Command>
-+    </PreBuildEvent>
-+    <ClCompile>
-+      <Optimization>Disabled</Optimization>
-+      <AdditionalIncludeDirectories>..\src\hunspell;.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;HUNSPELL_STATIC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-+      <MinimalRebuild>false</MinimalRebuild>
-+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
-+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-+      <PrecompiledHeader>
-+      </PrecompiledHeader>
-+      <WarningLevel>Level4</WarningLevel>
+     </ClCompile>
+     <Lib>
+       <AdditionalOptions>/MACHINE:X86 %(AdditionalOptions)</AdditionalOptions>
+@@ -191,8 +194,11 @@
+       <PrecompiledHeader>
+       </PrecompiledHeader>
+       <WarningLevel>Level4</WarningLevel>
+-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
 +      <DebugInformationFormat>OldStyle</DebugInformationFormat>
-+      <DisableSpecificWarnings>4706;4251;4267</DisableSpecificWarnings>
+       <DisableSpecificWarnings>4706;4251;4267</DisableSpecificWarnings>
 +      <ConformanceMode>true</ConformanceMode>
 +      <LanguageStandard>stdcpp17</LanguageStandard>
 +      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-+    </ClCompile>
-+    <Lib />
-+  </ItemDefinitionGroup>
-+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-+    <PreBuildEvent>
-+      <Command>echo N | copy /-Y ..\src\hunspell\hunvisapi.h.in ..\src\hunspell\hunvisapi.h</Command>
-+    </PreBuildEvent>
-+    <ClCompile>
-+      <Optimization>Full</Optimization>
-+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-+      <AdditionalIncludeDirectories>..\src\hunspell;.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;HUNSPELL_STATIC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-+      <StringPooling>true</StringPooling>
-+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-+      <FunctionLevelLinking>true</FunctionLevelLinking>
-+      <PrecompiledHeader />
-+      <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
-+      <WarningLevel>Level4</WarningLevel>
+     </ClCompile>
+     <Lib />
+   </ItemDefinitionGroup>
+@@ -211,8 +217,12 @@
+       <PrecompiledHeader />
+       <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
+       <WarningLevel>Level4</WarningLevel>
+-      <DebugInformationFormat />
 +      <DebugInformationFormat>OldStyle</DebugInformationFormat>
-+      <DisableSpecificWarnings>4706;4251;4267</DisableSpecificWarnings>
+       <DisableSpecificWarnings>4706;4251;4267</DisableSpecificWarnings>
 +      <ConformanceMode>true</ConformanceMode>
 +      <LanguageStandard>stdcpp17</LanguageStandard>
 +      <MultiProcessorCompilation>true</MultiProcessorCompilation>
 +      <WholeProgramOptimization>false</WholeProgramOptimization>
-+    </ClCompile>
-+    <ResourceCompile>
-+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-+      <Culture>0x0409</Culture>
-+    </ResourceCompile>
-+    <Bscmake>
-+      <SuppressStartupBanner>false</SuppressStartupBanner>
-+    </Bscmake>
-+  </ItemDefinitionGroup>
-+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-+    <PreBuildEvent>
-+      <Command>echo N | copy /-Y ..\src\hunspell\hunvisapi.h.in ..\src\hunspell\hunvisapi.h</Command>
-+    </PreBuildEvent>
-+    <ClCompile>
-+      <Optimization>Full</Optimization>
-+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-+      <AdditionalIncludeDirectories>..\src\hunspell;.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;HUNSPELL_STATIC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-+      <StringPooling>true</StringPooling>
-+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-+      <FunctionLevelLinking>true</FunctionLevelLinking>
-+      <PrecompiledHeader>
-+      </PrecompiledHeader>
-+      <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
-+      <WarningLevel>Level4</WarningLevel>
+     </ClCompile>
+     <ResourceCompile>
+       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+@@ -238,9 +248,12 @@
+       </PrecompiledHeader>
+       <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
+       <WarningLevel>Level4</WarningLevel>
+-      <DebugInformationFormat>
+-      </DebugInformationFormat>
 +      <DebugInformationFormat>OldStyle</DebugInformationFormat>
-+      <DisableSpecificWarnings>4706;4251;4267</DisableSpecificWarnings>
+       <DisableSpecificWarnings>4706;4251;4267</DisableSpecificWarnings>
 +      <ConformanceMode>true</ConformanceMode>
 +      <LanguageStandard>stdcpp17</LanguageStandard>
 +      <MultiProcessorCompilation>true</MultiProcessorCompilation>
 +      <WholeProgramOptimization>false</WholeProgramOptimization>
-+    </ClCompile>
-+    <ResourceCompile>
-+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-+      <Culture>0x0409</Culture>
-+    </ResourceCompile>
-+    <Bscmake>
-+      <SuppressStartupBanner>false</SuppressStartupBanner>
-+    </Bscmake>
-+  </ItemDefinitionGroup>
-+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_dll|Win32'">
-+    <PreBuildEvent>
-+      <Command>echo N | copy /-Y ..\src\hunspell\hunvisapi.h.in ..\src\hunspell\hunvisapi.h</Command>
-+    </PreBuildEvent>
-+    <ClCompile>
-+      <Optimization>Full</Optimization>
-+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-+      <AdditionalIncludeDirectories>..\src\hunspell;.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;BUILDING_LIBHUNSPELL;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-+      <StringPooling>true</StringPooling>
-+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-+      <FunctionLevelLinking>true</FunctionLevelLinking>
-+      <PrecompiledHeader />
-+      <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
-+      <WarningLevel>Level4</WarningLevel>
+     </ClCompile>
+     <ResourceCompile>
+       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+@@ -265,20 +278,25 @@
+       <PrecompiledHeader />
+       <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
+       <WarningLevel>Level4</WarningLevel>
+-      <DebugInformationFormat />
 +      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-+      <DisableSpecificWarnings>4706;4251;4267</DisableSpecificWarnings>
+       <DisableSpecificWarnings>4706;4251;4267</DisableSpecificWarnings>
 +      <AdditionalOptions>/Ob3 %(AdditionalOptions)</AdditionalOptions>
 +      <ConformanceMode>true</ConformanceMode>
 +      <LanguageStandard>stdcpp17</LanguageStandard>
 +      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-+    </ClCompile>
-+    <ResourceCompile>
-+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-+      <Culture>0x0409</Culture>
-+    </ResourceCompile>
-+    <Link>
+     </ClCompile>
+     <ResourceCompile>
+       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+       <Culture>0x0409</Culture>
+     </ResourceCompile>
+     <Link>
+-      <GenerateDebugInformation>false</GenerateDebugInformation>
 +      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
-+      <SubSystem>Windows</SubSystem>
-+      <OptimizeReferences>true</OptimizeReferences>
-+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-+      <DataExecutionPrevention />
+       <SubSystem>Windows</SubSystem>
+       <OptimizeReferences>true</OptimizeReferences>
+       <EnableCOMDATFolding>true</EnableCOMDATFolding>
+-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+       <DataExecutionPrevention />
 +      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
 +      <AdditionalOptions>/Ob3 %(AdditionalOptions)</AdditionalOptions>
-+    </Link>
-+  </ItemDefinitionGroup>
-+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_dll|x64'">
-+    <PreBuildEvent>
-+      <Command>echo N | copy /-Y ..\src\hunspell\hunvisapi.h.in ..\src\hunspell\hunvisapi.h</Command>
-+    </PreBuildEvent>
-+    <ClCompile>
-+      <Optimization>Full</Optimization>
-+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-+      <AdditionalIncludeDirectories>..\src\hunspell;.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;BUILDING_LIBHUNSPELL;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-+      <StringPooling>true</StringPooling>
-+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-+      <FunctionLevelLinking>true</FunctionLevelLinking>
-+      <PrecompiledHeader>
-+      </PrecompiledHeader>
-+      <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
-+      <WarningLevel>Level4</WarningLevel>
+     </Link>
+   </ItemDefinitionGroup>
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_dll|x64'">
+@@ -297,22 +315,26 @@
+       </PrecompiledHeader>
+       <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
+       <WarningLevel>Level4</WarningLevel>
+-      <DebugInformationFormat>
+-      </DebugInformationFormat>
 +      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-+      <DisableSpecificWarnings>4706;4251;4267</DisableSpecificWarnings>
+       <DisableSpecificWarnings>4706;4251;4267</DisableSpecificWarnings>
 +      <AdditionalOptions>/Ob3 %(AdditionalOptions)</AdditionalOptions>
 +      <ConformanceMode>true</ConformanceMode>
 +      <LanguageStandard>stdcpp17</LanguageStandard>
 +      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-+    </ClCompile>
-+    <ResourceCompile>
-+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-+      <Culture>0x0409</Culture>
-+    </ResourceCompile>
-+    <Link>
+     </ClCompile>
+     <ResourceCompile>
+       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+       <Culture>0x0409</Culture>
+     </ResourceCompile>
+     <Link>
+-      <GenerateDebugInformation>false</GenerateDebugInformation>
 +      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
-+      <OptimizeReferences>true</OptimizeReferences>
-+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-+      <DataExecutionPrevention>
-+      </DataExecutionPrevention>
-+      <SubSystem>Windows</SubSystem>
+       <OptimizeReferences>true</OptimizeReferences>
+       <EnableCOMDATFolding>true</EnableCOMDATFolding>
+-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+       <DataExecutionPrevention>
+       </DataExecutionPrevention>
+       <SubSystem>Windows</SubSystem>
 +      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
 +      <AdditionalOptions>/Ob3 %(AdditionalOptions)</AdditionalOptions>
-+    </Link>
-+  </ItemDefinitionGroup>
-+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_dll|Win32'">
-+    <PreBuildEvent>
-+      <Command>echo N | copy /-Y ..\src\hunspell\hunvisapi.h.in ..\src\hunspell\hunvisapi.h</Command>
-+    </PreBuildEvent>
-+    <ClCompile>
-+      <Optimization>Disabled</Optimization>
-+      <AdditionalIncludeDirectories>..\src\hunspell;.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;BUILDING_LIBHUNSPELL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-+      <MinimalRebuild>false</MinimalRebuild>
-+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
-+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-+      <PrecompiledHeader />
-+      <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
-+      <WarningLevel>Level4</WarningLevel>
+     </Link>
+   </ItemDefinitionGroup>
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_dll|Win32'">
+@@ -329,15 +351,16 @@
+       <PrecompiledHeader />
+       <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
+       <WarningLevel>Level4</WarningLevel>
+-      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
 +      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-+      <DisableSpecificWarnings>4706;4251;4267</DisableSpecificWarnings>
+       <DisableSpecificWarnings>4706;4251;4267</DisableSpecificWarnings>
 +      <ConformanceMode>true</ConformanceMode>
 +      <LanguageStandard>stdcpp17</LanguageStandard>
 +      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-+    </ClCompile>
-+    <Link>
+     </ClCompile>
+     <Link>
+-      <GenerateDebugInformation>true</GenerateDebugInformation>
 +      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
-+      <SubSystem>Windows</SubSystem>
-+      <DataExecutionPrevention />
-+    </Link>
-+  </ItemDefinitionGroup>
-+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_dll|x64'">
-+    <PreBuildEvent>
-+      <Command>echo N | copy /-Y ..\src\hunspell\hunvisapi.h.in ..\src\hunspell\hunvisapi.h</Command>
-+    </PreBuildEvent>
-+    <ClCompile>
-+      <Optimization>Disabled</Optimization>
-+      <AdditionalIncludeDirectories>..\src\hunspell;.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;BUILDING_LIBHUNSPELL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-+      <MinimalRebuild>false</MinimalRebuild>
-+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
-+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-+      <PrecompiledHeader>
-+      </PrecompiledHeader>
-+      <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
-+      <WarningLevel>Level4</WarningLevel>
-+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-+      <DisableSpecificWarnings>4706;4251;4267</DisableSpecificWarnings>
+       <SubSystem>Windows</SubSystem>
+-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+       <DataExecutionPrevention />
+-      <TargetMachine>MachineX86</TargetMachine>
+     </Link>
+   </ItemDefinitionGroup>
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_dll|x64'">
+@@ -357,11 +380,13 @@
+       <WarningLevel>Level4</WarningLevel>
+       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+       <DisableSpecificWarnings>4706;4251;4267</DisableSpecificWarnings>
 +      <ConformanceMode>true</ConformanceMode>
 +      <LanguageStandard>stdcpp17</LanguageStandard>
 +      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-+    </ClCompile>
-+    <Link>
+     </ClCompile>
+     <Link>
+-      <GenerateDebugInformation>true</GenerateDebugInformation>
 +      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
-+      <SubSystem>Windows</SubSystem>
-+      <DataExecutionPrevention>
-+      </DataExecutionPrevention>
-+    </Link>
-+  </ItemDefinitionGroup>
-+  <ItemGroup>
-+    <ClInclude Include="..\src\hunspell\affentry.hxx" />
-+    <ClInclude Include="..\src\hunspell\affixmgr.hxx" />
-+    <ClInclude Include="..\src\hunspell\atypes.hxx" />
-+    <ClInclude Include="..\src\hunspell\baseaffix.hxx" />
-+    <ClInclude Include="..\src\hunspell\csutil.hxx" />
-+    <ClInclude Include="..\src\hunspell\filemgr.hxx" />
-+    <ClInclude Include="..\src\hunspell\hashmgr.hxx" />
-+    <ClInclude Include="..\src\hunspell\htypes.hxx" />
-+    <ClInclude Include="..\src\hunspell\hunspell.h" />
-+    <ClInclude Include="..\src\hunspell\hunspell.hxx" />
-+    <ClInclude Include="..\src\hunspell\hunzip.hxx" />
-+    <ClInclude Include="..\src\hunspell\langnum.hxx" />
-+    <ClInclude Include="..\src\hunspell\phonet.hxx" />
-+    <ClInclude Include="..\src\hunspell\replist.hxx" />
-+    <ClInclude Include="..\src\hunspell\suggestmgr.hxx" />
+       <SubSystem>Windows</SubSystem>
+-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+       <DataExecutionPrevention>
+       </DataExecutionPrevention>
+     </Link>
+@@ -382,6 +407,7 @@
+     <ClInclude Include="..\src\hunspell\phonet.hxx" />
+     <ClInclude Include="..\src\hunspell\replist.hxx" />
+     <ClInclude Include="..\src\hunspell\suggestmgr.hxx" />
 +    <ClInclude Include="..\src\hunspell\utf_info.hxx" />
-+    <ClInclude Include="..\src\hunspell\w_char.hxx" />
-+    <ClInclude Include="config.h" />
-+  </ItemGroup>
-+  <ItemGroup>
-+    <ResourceCompile Include="Hunspell.rc" />
-+  </ItemGroup>
-+  <ItemGroup>
-+    <ClCompile Include="..\src\hunspell\affentry.cxx" />
-+    <ClCompile Include="..\src\hunspell\affixmgr.cxx" />
-+    <ClCompile Include="..\src\hunspell\csutil.cxx" />
-+    <ClCompile Include="..\src\hunspell\filemgr.cxx" />
-+    <ClCompile Include="..\src\hunspell\hashmgr.cxx" />
-+    <ClCompile Include="..\src\hunspell\hunspell.cxx" />
-+    <ClCompile Include="..\src\hunspell\hunzip.cxx" />
-+    <ClCompile Include="..\src\hunspell\phonet.cxx" />
-+    <ClCompile Include="..\src\hunspell\replist.cxx" />
-+    <ClCompile Include="..\src\hunspell\suggestmgr.cxx" />
-+  </ItemGroup>
-+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-+  <ImportGroup Label="ExtensionTargets">
-+  </ImportGroup>
-+</Project>
-\ No newline at end of file
+     <ClInclude Include="..\src\hunspell\w_char.hxx" />
+     <ClInclude Include="config.h" />
+   </ItemGroup>
 diff --git a/msvc/testparser.vcxproj b/msvc/testparser.vcxproj
-index c9e0cf7..30a4739 100644
+index c9e0cf7..ec277a4 100644
 --- a/msvc/testparser.vcxproj
 +++ b/msvc/testparser.vcxproj
-@@ -1,207 +1,209 @@
--﻿<?xml version="1.0" encoding="utf-8"?>
--<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
--  <ItemGroup Label="ProjectConfigurations">
--    <ProjectConfiguration Include="Debug|Win32">
--      <Configuration>Debug</Configuration>
--      <Platform>Win32</Platform>
--    </ProjectConfiguration>
--    <ProjectConfiguration Include="Debug|x64">
--      <Configuration>Debug</Configuration>
--      <Platform>x64</Platform>
--    </ProjectConfiguration>
--    <ProjectConfiguration Include="Release|Win32">
--      <Configuration>Release</Configuration>
--      <Platform>Win32</Platform>
--    </ProjectConfiguration>
--    <ProjectConfiguration Include="Release|x64">
--      <Configuration>Release</Configuration>
--      <Platform>x64</Platform>
--    </ProjectConfiguration>
--  </ItemGroup>
--  <PropertyGroup Label="Globals">
--    <ProjectGuid>{611BF6C7-332A-49BB-B2A3-80AFD5B785D9}</ProjectGuid>
--    <RootNamespace>testparser</RootNamespace>
--    <Keyword>Win32Proj</Keyword>
+@@ -22,30 +22,29 @@
+     <ProjectGuid>{611BF6C7-332A-49BB-B2A3-80AFD5B785D9}</ProjectGuid>
+     <RootNamespace>testparser</RootNamespace>
+     <Keyword>Win32Proj</Keyword>
 -    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
--  </PropertyGroup>
--  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
--  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
--    <ConfigurationType>Application</ConfigurationType>
+   </PropertyGroup>
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+     <ConfigurationType>Application</ConfigurationType>
 -    <PlatformToolset>v140_xp</PlatformToolset>
 -    <CharacterSet>MultiByte</CharacterSet>
--    <WholeProgramOptimization>true</WholeProgramOptimization>
--  </PropertyGroup>
--  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
--    <ConfigurationType>Application</ConfigurationType>
+     <WholeProgramOptimization>true</WholeProgramOptimization>
++    <PlatformToolset>v143</PlatformToolset>
++    <CharacterSet>Unicode</CharacterSet>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+     <ConfigurationType>Application</ConfigurationType>
 -    <PlatformToolset>v140_xp</PlatformToolset>
 -    <CharacterSet>MultiByte</CharacterSet>
--    <WholeProgramOptimization>true</WholeProgramOptimization>
--  </PropertyGroup>
--  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
--    <ConfigurationType>Application</ConfigurationType>
+     <WholeProgramOptimization>true</WholeProgramOptimization>
++    <PlatformToolset>v143</PlatformToolset>
++    <CharacterSet>Unicode</CharacterSet>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+     <ConfigurationType>Application</ConfigurationType>
 -    <PlatformToolset>v140_xp</PlatformToolset>
 -    <CharacterSet>MultiByte</CharacterSet>
--  </PropertyGroup>
--  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
--    <ConfigurationType>Application</ConfigurationType>
++    <PlatformToolset>v143</PlatformToolset>
++    <CharacterSet>Unicode</CharacterSet>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+     <ConfigurationType>Application</ConfigurationType>
 -    <PlatformToolset>v140_xp</PlatformToolset>
 -    <CharacterSet>MultiByte</CharacterSet>
--  </PropertyGroup>
--  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
--  <ImportGroup Label="ExtensionSettings">
--  </ImportGroup>
--  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
--    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
--  </ImportGroup>
--  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
--    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
--  </ImportGroup>
--  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
--    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
--  </ImportGroup>
--  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
--    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
--  </ImportGroup>
--  <PropertyGroup Label="UserMacros" />
--  <PropertyGroup>
--    <_ProjectFileVersion>14.0.25420.1</_ProjectFileVersion>
--  </PropertyGroup>
--  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
--    <OutDir>$(SolutionDir)$(Configuration)\$(ProjectName)\</OutDir>
--    <IntDir>$(Configuration)\$(ProjectName)\</IntDir>
--    <LinkIncremental>true</LinkIncremental>
--  </PropertyGroup>
--  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
--    <LinkIncremental>true</LinkIncremental>
--    <IntDir>$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
--  </PropertyGroup>
--  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
--    <OutDir>$(SolutionDir)$(Configuration)\$(ProjectName)\</OutDir>
--    <IntDir>$(Configuration)\$(ProjectName)\</IntDir>
--    <LinkIncremental>false</LinkIncremental>
--  </PropertyGroup>
--  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
--    <LinkIncremental>false</LinkIncremental>
--    <IntDir>$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
--  </PropertyGroup>
--  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
--    <ClCompile>
--      <Optimization>Disabled</Optimization>
--      <AdditionalIncludeDirectories>..\src\hunspell;..\src\parsers;.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
--      <PreprocessorDefinitions>W32;WIN32;_DEBUG;_CONSOLE;HUNSPELL_STATIC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
--      <MinimalRebuild>true</MinimalRebuild>
--      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
--      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
--      <PrecompiledHeader />
--      <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
--      <WarningLevel>Level4</WarningLevel>
--      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
--      <DisableSpecificWarnings>4706</DisableSpecificWarnings>
--    </ClCompile>
--    <Link>
--      <GenerateDebugInformation>true</GenerateDebugInformation>
--      <SubSystem>Console</SubSystem>
--      <RandomizedBaseAddress>false</RandomizedBaseAddress>
--      <DataExecutionPrevention />
--      <TargetMachine>MachineX86</TargetMachine>
--    </Link>
--  </ItemDefinitionGroup>
--  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
--    <ClCompile>
--      <Optimization>Disabled</Optimization>
--      <AdditionalIncludeDirectories>..\src\hunspell;..\src\parsers;.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
--      <PreprocessorDefinitions>W32;WIN32;_DEBUG;_CONSOLE;HUNSPELL_STATIC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
--      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
--      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
--      <PrecompiledHeader>
--      </PrecompiledHeader>
--      <WarningLevel>Level4</WarningLevel>
--      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
--      <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
--      <DisableSpecificWarnings>4706</DisableSpecificWarnings>
--    </ClCompile>
--    <Link>
--      <GenerateDebugInformation>true</GenerateDebugInformation>
--      <SubSystem>Console</SubSystem>
--      <RandomizedBaseAddress>false</RandomizedBaseAddress>
--      <DataExecutionPrevention>
--      </DataExecutionPrevention>
--    </Link>
--  </ItemDefinitionGroup>
--  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
--    <ClCompile>
--      <Optimization>Full</Optimization>
--      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
--      <AdditionalIncludeDirectories>..\src\hunspell;..\src\parsers;.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
--      <PreprocessorDefinitions>W32;WIN32;NDEBUG;_CONSOLE;HUNSPELL_STATIC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
--      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
--      <PrecompiledHeader />
--      <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
--      <WarningLevel>Level4</WarningLevel>
--      <DebugInformationFormat />
--      <DisableSpecificWarnings>4706</DisableSpecificWarnings>
--    </ClCompile>
--    <Link>
--      <GenerateDebugInformation>true</GenerateDebugInformation>
--      <SubSystem>Console</SubSystem>
--      <OptimizeReferences>true</OptimizeReferences>
--      <EnableCOMDATFolding>true</EnableCOMDATFolding>
--      <RandomizedBaseAddress>false</RandomizedBaseAddress>
--      <DataExecutionPrevention />
--      <TargetMachine>MachineX86</TargetMachine>
--    </Link>
--  </ItemDefinitionGroup>
--  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
--    <ClCompile>
--      <Optimization>Full</Optimization>
--      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
--      <AdditionalIncludeDirectories>..\src\hunspell;..\src\parsers;.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
--      <PreprocessorDefinitions>W32;WIN32;NDEBUG;_CONSOLE;HUNSPELL_STATIC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
--      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
--      <PrecompiledHeader>
--      </PrecompiledHeader>
--      <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
--      <WarningLevel>Level4</WarningLevel>
--      <DebugInformationFormat>
--      </DebugInformationFormat>
--      <DisableSpecificWarnings>4706</DisableSpecificWarnings>
--    </ClCompile>
--    <Link>
--      <GenerateDebugInformation>true</GenerateDebugInformation>
--      <SubSystem>Console</SubSystem>
--      <OptimizeReferences>true</OptimizeReferences>
--      <EnableCOMDATFolding>true</EnableCOMDATFolding>
--      <RandomizedBaseAddress>false</RandomizedBaseAddress>
--      <DataExecutionPrevention>
--      </DataExecutionPrevention>
--    </Link>
--  </ItemDefinitionGroup>
--  <ItemGroup>
--    <ClCompile Include="..\src\parsers\firstparser.cxx" />
--    <ClCompile Include="..\src\parsers\htmlparser.cxx" />
--    <ClCompile Include="..\src\parsers\latexparser.cxx" />
--    <ClCompile Include="..\src\parsers\manparser.cxx" />
--    <ClCompile Include="..\src\parsers\odfparser.cxx" />
--    <ClCompile Include="..\src\parsers\testparser.cxx" />
--    <ClCompile Include="..\src\parsers\textparser.cxx" />
--    <ClCompile Include="..\src\parsers\xmlparser.cxx" />
--  </ItemGroup>
--  <ItemGroup>
--    <ClInclude Include="..\src\parsers\firstparser.hxx" />
--    <ClInclude Include="..\src\parsers\htmlparser.hxx" />
--    <ClInclude Include="..\src\parsers\latexparser.hxx" />
--    <ClInclude Include="..\src\parsers\manparser.hxx" />
--    <ClInclude Include="..\src\parsers\odfparser.hxx" />
--    <ClInclude Include="..\src\parsers\textparser.hxx" />
--    <ClInclude Include="..\src\parsers\xmlparser.hxx" />
--  </ItemGroup>
--  <ItemGroup>
--    <ProjectReference Include="libhunspell.vcxproj">
--      <Project>{53609bb3-d874-465c-af7b-df626db0d89b}</Project>
--      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
--    </ProjectReference>
--  </ItemGroup>
--  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
--  <ImportGroup Label="ExtensionTargets">
--  </ImportGroup>
-+﻿<?xml version="1.0" encoding="utf-8"?>
-+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-+  <ItemGroup Label="ProjectConfigurations">
-+    <ProjectConfiguration Include="Debug|Win32">
-+      <Configuration>Debug</Configuration>
-+      <Platform>Win32</Platform>
-+    </ProjectConfiguration>
-+    <ProjectConfiguration Include="Debug|x64">
-+      <Configuration>Debug</Configuration>
-+      <Platform>x64</Platform>
-+    </ProjectConfiguration>
-+    <ProjectConfiguration Include="Release|Win32">
-+      <Configuration>Release</Configuration>
-+      <Platform>Win32</Platform>
-+    </ProjectConfiguration>
-+    <ProjectConfiguration Include="Release|x64">
-+      <Configuration>Release</Configuration>
-+      <Platform>x64</Platform>
-+    </ProjectConfiguration>
-+  </ItemGroup>
-+  <PropertyGroup Label="Globals">
-+    <ProjectGuid>{611BF6C7-332A-49BB-B2A3-80AFD5B785D9}</ProjectGuid>
-+    <RootNamespace>testparser</RootNamespace>
-+    <Keyword>Win32Proj</Keyword>
-+  </PropertyGroup>
-+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-+    <ConfigurationType>Application</ConfigurationType>
-+    <WholeProgramOptimization>true</WholeProgramOptimization>
 +    <PlatformToolset>v143</PlatformToolset>
 +    <CharacterSet>Unicode</CharacterSet>
-+  </PropertyGroup>
-+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-+    <ConfigurationType>Application</ConfigurationType>
-+    <WholeProgramOptimization>true</WholeProgramOptimization>
-+    <PlatformToolset>v143</PlatformToolset>
-+    <CharacterSet>Unicode</CharacterSet>
-+  </PropertyGroup>
-+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-+    <ConfigurationType>Application</ConfigurationType>
-+    <PlatformToolset>v143</PlatformToolset>
-+    <CharacterSet>Unicode</CharacterSet>
-+  </PropertyGroup>
-+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-+    <ConfigurationType>Application</ConfigurationType>
-+    <PlatformToolset>v143</PlatformToolset>
-+    <CharacterSet>Unicode</CharacterSet>
-+  </PropertyGroup>
-+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-+  <ImportGroup Label="ExtensionSettings">
-+  </ImportGroup>
-+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
-+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-+  </ImportGroup>
-+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
-+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-+  </ImportGroup>
-+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
-+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-+  </ImportGroup>
-+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
-+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-+  </ImportGroup>
-+  <PropertyGroup Label="UserMacros" />
-+  <PropertyGroup>
-+    <_ProjectFileVersion>14.0.25420.1</_ProjectFileVersion>
-+  </PropertyGroup>
-+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-+    <OutDir>$(SolutionDir)$(Configuration)\$(ProjectName)\</OutDir>
-+    <IntDir>$(Configuration)\$(ProjectName)\</IntDir>
-+    <LinkIncremental>true</LinkIncremental>
-+  </PropertyGroup>
-+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-+    <LinkIncremental>true</LinkIncremental>
-+    <IntDir>$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
-+  </PropertyGroup>
-+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-+    <OutDir>$(SolutionDir)$(Configuration)\$(ProjectName)\</OutDir>
-+    <IntDir>$(Configuration)\$(ProjectName)\</IntDir>
-+    <LinkIncremental>false</LinkIncremental>
-+  </PropertyGroup>
-+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-+    <LinkIncremental>false</LinkIncremental>
-+    <IntDir>$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
-+  </PropertyGroup>
-+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-+    <ClCompile>
-+      <Optimization>Disabled</Optimization>
-+      <AdditionalIncludeDirectories>..\src\hunspell;..\src\parsers;.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-+      <PreprocessorDefinitions>W32;WIN32;_DEBUG;_CONSOLE;HUNSPELL_STATIC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-+      <MinimalRebuild>true</MinimalRebuild>
-+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
-+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-+      <PrecompiledHeader />
-+      <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
-+      <WarningLevel>Level4</WarningLevel>
-+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-+      <DisableSpecificWarnings>4706</DisableSpecificWarnings>
+   </PropertyGroup>
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+   <ImportGroup Label="ExtensionSettings">
+@@ -97,13 +96,12 @@
+       <WarningLevel>Level4</WarningLevel>
+       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+       <DisableSpecificWarnings>4706</DisableSpecificWarnings>
 +      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-+    </ClCompile>
-+    <Link>
-+      <GenerateDebugInformation>true</GenerateDebugInformation>
-+      <SubSystem>Console</SubSystem>
-+      <DataExecutionPrevention />
-+    </Link>
-+  </ItemDefinitionGroup>
-+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-+    <ClCompile>
-+      <Optimization>Disabled</Optimization>
-+      <AdditionalIncludeDirectories>..\src\hunspell;..\src\parsers;.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-+      <PreprocessorDefinitions>W32;WIN32;_DEBUG;_CONSOLE;HUNSPELL_STATIC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
-+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-+      <PrecompiledHeader>
-+      </PrecompiledHeader>
-+      <WarningLevel>Level4</WarningLevel>
-+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-+      <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
-+      <DisableSpecificWarnings>4706</DisableSpecificWarnings>
+     </ClCompile>
+     <Link>
+       <GenerateDebugInformation>true</GenerateDebugInformation>
+       <SubSystem>Console</SubSystem>
+-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+       <DataExecutionPrevention />
+-      <TargetMachine>MachineX86</TargetMachine>
+     </Link>
+   </ItemDefinitionGroup>
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+@@ -119,11 +117,11 @@
+       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+       <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
+       <DisableSpecificWarnings>4706</DisableSpecificWarnings>
 +      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-+    </ClCompile>
-+    <Link>
-+      <GenerateDebugInformation>true</GenerateDebugInformation>
-+      <SubSystem>Console</SubSystem>
-+      <DataExecutionPrevention>
-+      </DataExecutionPrevention>
-+    </Link>
-+  </ItemDefinitionGroup>
-+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-+    <ClCompile>
-+      <Optimization>Full</Optimization>
-+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-+      <AdditionalIncludeDirectories>..\src\hunspell;..\src\parsers;.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-+      <PreprocessorDefinitions>W32;WIN32;NDEBUG;_CONSOLE;HUNSPELL_STATIC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-+      <PrecompiledHeader />
-+      <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
-+      <WarningLevel>Level4</WarningLevel>
-+      <DebugInformationFormat />
-+      <DisableSpecificWarnings>4706</DisableSpecificWarnings>
+     </ClCompile>
+     <Link>
+       <GenerateDebugInformation>true</GenerateDebugInformation>
+       <SubSystem>Console</SubSystem>
+-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+       <DataExecutionPrevention>
+       </DataExecutionPrevention>
+     </Link>
+@@ -140,15 +138,16 @@
+       <WarningLevel>Level4</WarningLevel>
+       <DebugInformationFormat />
+       <DisableSpecificWarnings>4706</DisableSpecificWarnings>
 +      <FunctionLevelLinking>true</FunctionLevelLinking>
 +      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-+    </ClCompile>
-+    <Link>
-+      <GenerateDebugInformation>true</GenerateDebugInformation>
-+      <SubSystem>Console</SubSystem>
-+      <OptimizeReferences>true</OptimizeReferences>
-+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-+      <DataExecutionPrevention />
+     </ClCompile>
+     <Link>
+       <GenerateDebugInformation>true</GenerateDebugInformation>
+       <SubSystem>Console</SubSystem>
+       <OptimizeReferences>true</OptimizeReferences>
+       <EnableCOMDATFolding>true</EnableCOMDATFolding>
+-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+       <DataExecutionPrevention />
+-      <TargetMachine>MachineX86</TargetMachine>
 +      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
-+    </Link>
-+  </ItemDefinitionGroup>
-+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-+    <ClCompile>
-+      <Optimization>Full</Optimization>
-+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-+      <AdditionalIncludeDirectories>..\src\hunspell;..\src\parsers;.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-+      <PreprocessorDefinitions>W32;WIN32;NDEBUG;_CONSOLE;HUNSPELL_STATIC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-+      <PrecompiledHeader>
-+      </PrecompiledHeader>
-+      <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
-+      <WarningLevel>Level4</WarningLevel>
-+      <DebugInformationFormat>
-+      </DebugInformationFormat>
-+      <DisableSpecificWarnings>4706</DisableSpecificWarnings>
+     </Link>
+   </ItemDefinitionGroup>
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+@@ -165,6 +164,8 @@
+       <DebugInformationFormat>
+       </DebugInformationFormat>
+       <DisableSpecificWarnings>4706</DisableSpecificWarnings>
 +      <FunctionLevelLinking>true</FunctionLevelLinking>
 +      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-+    </ClCompile>
-+    <Link>
-+      <GenerateDebugInformation>true</GenerateDebugInformation>
-+      <SubSystem>Console</SubSystem>
-+      <OptimizeReferences>true</OptimizeReferences>
-+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
-+      <DataExecutionPrevention>
-+      </DataExecutionPrevention>
+     </ClCompile>
+     <Link>
+       <GenerateDebugInformation>true</GenerateDebugInformation>
+@@ -174,6 +175,7 @@
+       <RandomizedBaseAddress>false</RandomizedBaseAddress>
+       <DataExecutionPrevention>
+       </DataExecutionPrevention>
 +      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
-+    </Link>
-+  </ItemDefinitionGroup>
-+  <ItemGroup>
-+    <ClCompile Include="..\src\parsers\firstparser.cxx" />
-+    <ClCompile Include="..\src\parsers\htmlparser.cxx" />
-+    <ClCompile Include="..\src\parsers\latexparser.cxx" />
-+    <ClCompile Include="..\src\parsers\manparser.cxx" />
-+    <ClCompile Include="..\src\parsers\odfparser.cxx" />
-+    <ClCompile Include="..\src\parsers\testparser.cxx" />
-+    <ClCompile Include="..\src\parsers\textparser.cxx" />
-+    <ClCompile Include="..\src\parsers\xmlparser.cxx" />
-+  </ItemGroup>
-+  <ItemGroup>
-+    <ClInclude Include="..\src\parsers\firstparser.hxx" />
-+    <ClInclude Include="..\src\parsers\htmlparser.hxx" />
-+    <ClInclude Include="..\src\parsers\latexparser.hxx" />
-+    <ClInclude Include="..\src\parsers\manparser.hxx" />
-+    <ClInclude Include="..\src\parsers\odfparser.hxx" />
-+    <ClInclude Include="..\src\parsers\textparser.hxx" />
-+    <ClInclude Include="..\src\parsers\xmlparser.hxx" />
-+  </ItemGroup>
-+  <ItemGroup>
-+    <ProjectReference Include="libhunspell.vcxproj">
-+      <Project>{53609bb3-d874-465c-af7b-df626db0d89b}</Project>
-+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-+    </ProjectReference>
-+  </ItemGroup>
-+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-+  <ImportGroup Label="ExtensionTargets">
-+  </ImportGroup>
- </Project>
-\ No newline at end of file
+     </Link>
+   </ItemDefinitionGroup>
+   <ItemGroup>
 -- 
 2.34.1
 

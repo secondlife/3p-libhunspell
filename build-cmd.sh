@@ -11,7 +11,7 @@ set -u
 
 HUNSPELL_SOURCE_DIR="hunspell"
 # version will be (e.g.) "1.4.0"
-HUNSPELL_VERSION=`sed -n -E 's/#define PACKAGE_VERSION ([0-9])[.]([0-9])[.]([0-9]).*/\1.\2.\3/p' "hunspell/msvc/config.h"`
+HUNSPELL_VERSION=`sed -n -E 's/#define PACKAGE_VERSION "([0-9])[.]([0-9])[.]([0-9])".*/\1.\2.\3/p' "hunspell/msvc/config.h"`
 
 if [ -z "$AUTOBUILD" ] ; then
     exit 1
@@ -41,7 +41,7 @@ apply_patch()
     local patch="$1"
     local path="$2"
     echo "Applying $patch..."
-    git apply --check --directory="$path" "$patch" || git apply --directory="$path" "$patch"
+    git apply --check --directory="$path" "$patch" && git apply --directory="$path" "$patch"
 }
 
 apply_patch "patches/0001-Fix-MSVC-solutions-for-VS2022.patch" "hunspell"
@@ -80,9 +80,9 @@ pushd "$HUNSPELL_SOURCE_DIR"
             mkdir -p "build_release"
             pushd "build_release"
                 CFLAGS="$plainopts" CXXFLAGS="$opts" \
-                    ../configure --prefix="\${AUTOBUILD_PACKAGES_DIR}" --libdir="\${prefix}/lib/release" --enable-static --disable-shared
+                    ../configure --prefix="$stage" --libdir="$stage/lib/release" --enable-static --disable-shared
                 make -j$AUTOBUILD_CPU_COUNT
-                make install DESTDIR="$stage"
+                make install
 
                 # conditionally run unit tests
                 if [ "${DISABLE_UNIT_TESTS:-0}" = "0" ]; then
@@ -101,7 +101,7 @@ pushd "$HUNSPELL_SOURCE_DIR"
             mkdir -p "build_release"
             pushd "build_release"
                 CFLAGS="$plainopts" CXXFLAGS="$opts" \
-                    ../configure --prefix="$stage" --enable-static --disable-shared
+                    ../configure --prefix="$stage" --libdir="$stage/lib/release" --enable-static --disable-shared
                 make -j$AUTOBUILD_CPU_COUNT
                 make install
 
