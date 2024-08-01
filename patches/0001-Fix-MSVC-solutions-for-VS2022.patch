@@ -1,0 +1,464 @@
+From 29173290ae00e7c5c5dd3812e8716b63bd7bfed2 Mon Sep 17 00:00:00 2001
+From: Rye Mutt <rye@alchemyviewer.org>
+Date: Thu, 1 Aug 2024 18:48:17 -0400
+Subject: [PATCH] Fix up MSVC solution for VS2022
+
+---
+ msvc/hunspell.vcxproj    | 27 +++++++-------
+ msvc/libhunspell.vcxproj | 80 ++++++++++++++++++++++++++--------------
+ msvc/testparser.vcxproj  | 30 ++++++++-------
+ 3 files changed, 82 insertions(+), 55 deletions(-)
+
+diff --git a/msvc/hunspell.vcxproj b/msvc/hunspell.vcxproj
+index 4a98039..aacc6c2 100644
+--- a/msvc/hunspell.vcxproj
++++ b/msvc/hunspell.vcxproj
+@@ -22,30 +22,29 @@
+     <ProjectGuid>{6A0453F4-B12A-4810-B9A2-8AB059316ED7}</ProjectGuid>
+     <RootNamespace>hunspell</RootNamespace>
+     <Keyword>Win32Proj</Keyword>
+-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+   </PropertyGroup>
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+     <ConfigurationType>Application</ConfigurationType>
+-    <PlatformToolset>v140_xp</PlatformToolset>
+-    <CharacterSet>MultiByte</CharacterSet>
+     <WholeProgramOptimization>true</WholeProgramOptimization>
++    <PlatformToolset>v143</PlatformToolset>
++    <CharacterSet>Unicode</CharacterSet>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+     <ConfigurationType>Application</ConfigurationType>
+-    <PlatformToolset>v140_xp</PlatformToolset>
+-    <CharacterSet>MultiByte</CharacterSet>
+     <WholeProgramOptimization>true</WholeProgramOptimization>
++    <PlatformToolset>v143</PlatformToolset>
++    <CharacterSet>Unicode</CharacterSet>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+     <ConfigurationType>Application</ConfigurationType>
+-    <PlatformToolset>v140_xp</PlatformToolset>
+-    <CharacterSet>MultiByte</CharacterSet>
++    <PlatformToolset>v143</PlatformToolset>
++    <CharacterSet>Unicode</CharacterSet>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+     <ConfigurationType>Application</ConfigurationType>
+-    <PlatformToolset>v140_xp</PlatformToolset>
+-    <CharacterSet>MultiByte</CharacterSet>
++    <PlatformToolset>v143</PlatformToolset>
++    <CharacterSet>Unicode</CharacterSet>
+   </PropertyGroup>
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+   <ImportGroup Label="ExtensionSettings">
+@@ -89,6 +88,7 @@
+       <Optimization>Disabled</Optimization>
+       <AdditionalIncludeDirectories>..\src\hunspell;..\src\parsers;.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+       <PreprocessorDefinitions>W32;WIN32;_DEBUG;_CONSOLE;HUNSPELL_STATIC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <MinimalRebuild>true</MinimalRebuild>
+       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+       <PrecompiledHeader />
+@@ -96,11 +96,11 @@
+       <WarningLevel>Level4</WarningLevel>
+       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+       <DisableSpecificWarnings>4127;4267;4706</DisableSpecificWarnings>
++      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+     </ClCompile>
+     <Link>
+       <GenerateDebugInformation>true</GenerateDebugInformation>
+       <SubSystem>Console</SubSystem>
+-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+       <DataExecutionPrevention />
+       <TargetMachine>MachineX86</TargetMachine>
+     </Link>
+@@ -118,11 +118,11 @@
+       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+       <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
+       <DisableSpecificWarnings>4127;4267;4706</DisableSpecificWarnings>
++      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+     </ClCompile>
+     <Link>
+       <GenerateDebugInformation>true</GenerateDebugInformation>
+       <SubSystem>Console</SubSystem>
+-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+       <DataExecutionPrevention>
+       </DataExecutionPrevention>
+     </Link>
+@@ -139,15 +139,14 @@
+       <WarningLevel>Level4</WarningLevel>
+       <DebugInformationFormat />
+       <DisableSpecificWarnings>4127;4267;4706</DisableSpecificWarnings>
++      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+     </ClCompile>
+     <Link>
+       <GenerateDebugInformation>true</GenerateDebugInformation>
+       <SubSystem>Console</SubSystem>
+       <OptimizeReferences>true</OptimizeReferences>
+       <EnableCOMDATFolding>true</EnableCOMDATFolding>
+-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+       <DataExecutionPrevention />
+-      <TargetMachine>MachineX86</TargetMachine>
+     </Link>
+   </ItemDefinitionGroup>
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+@@ -164,13 +163,13 @@
+       <DebugInformationFormat>
+       </DebugInformationFormat>
+       <DisableSpecificWarnings>4127;4267;4706</DisableSpecificWarnings>
++      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+     </ClCompile>
+     <Link>
+       <GenerateDebugInformation>true</GenerateDebugInformation>
+       <SubSystem>Console</SubSystem>
+       <OptimizeReferences>true</OptimizeReferences>
+       <EnableCOMDATFolding>true</EnableCOMDATFolding>
+-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+       <DataExecutionPrevention>
+       </DataExecutionPrevention>
+     </Link>
+diff --git a/msvc/libhunspell.vcxproj b/msvc/libhunspell.vcxproj
+index a0772da..dd7ffee 100644
+--- a/msvc/libhunspell.vcxproj
++++ b/msvc/libhunspell.vcxproj
+@@ -38,60 +38,60 @@
+     <ProjectGuid>{53609BB3-D874-465C-AF7B-DF626DB0D89B}</ProjectGuid>
+     <RootNamespace>Hunspell</RootNamespace>
+     <Keyword>Win32Proj</Keyword>
+-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
++    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+   </PropertyGroup>
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_dll|Win32'" Label="Configuration">
+     <ConfigurationType>DynamicLibrary</ConfigurationType>
+-    <PlatformToolset>v140_xp</PlatformToolset>
++    <PlatformToolset>v143</PlatformToolset>
+     <UseOfMfc>false</UseOfMfc>
+     <CharacterSet>MultiByte</CharacterSet>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_dll|x64'" Label="Configuration">
+     <ConfigurationType>DynamicLibrary</ConfigurationType>
+-    <PlatformToolset>v140_xp</PlatformToolset>
++    <PlatformToolset>v143</PlatformToolset>
+     <UseOfMfc>false</UseOfMfc>
+     <CharacterSet>MultiByte</CharacterSet>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_dll|Win32'" Label="Configuration">
+     <ConfigurationType>DynamicLibrary</ConfigurationType>
+-    <PlatformToolset>v140_xp</PlatformToolset>
++    <PlatformToolset>v143</PlatformToolset>
+     <UseOfMfc>false</UseOfMfc>
+     <CharacterSet>MultiByte</CharacterSet>
+     <WholeProgramOptimization>true</WholeProgramOptimization>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_dll|x64'" Label="Configuration">
+     <ConfigurationType>DynamicLibrary</ConfigurationType>
+-    <PlatformToolset>v140_xp</PlatformToolset>
++    <PlatformToolset>v143</PlatformToolset>
+     <UseOfMfc>false</UseOfMfc>
+     <CharacterSet>MultiByte</CharacterSet>
+     <WholeProgramOptimization>true</WholeProgramOptimization>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+     <ConfigurationType>StaticLibrary</ConfigurationType>
+-    <PlatformToolset>v140_xp</PlatformToolset>
+     <UseOfMfc>false</UseOfMfc>
+     <CharacterSet>MultiByte</CharacterSet>
+     <WholeProgramOptimization>true</WholeProgramOptimization>
++    <PlatformToolset>v143</PlatformToolset>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+     <ConfigurationType>StaticLibrary</ConfigurationType>
+-    <PlatformToolset>v140_xp</PlatformToolset>
+     <UseOfMfc>false</UseOfMfc>
+     <CharacterSet>MultiByte</CharacterSet>
+     <WholeProgramOptimization>true</WholeProgramOptimization>
++    <PlatformToolset>v143</PlatformToolset>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+     <ConfigurationType>StaticLibrary</ConfigurationType>
+-    <PlatformToolset>v140_xp</PlatformToolset>
+     <UseOfMfc>false</UseOfMfc>
+     <CharacterSet>MultiByte</CharacterSet>
++    <PlatformToolset>v143</PlatformToolset>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+     <ConfigurationType>StaticLibrary</ConfigurationType>
+-    <PlatformToolset>v140_xp</PlatformToolset>
+     <UseOfMfc>false</UseOfMfc>
+     <CharacterSet>MultiByte</CharacterSet>
++    <PlatformToolset>v143</PlatformToolset>
+   </PropertyGroup>
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+   <ImportGroup Label="ExtensionSettings">
+@@ -170,8 +170,11 @@
+       <PrecompiledHeader />
+       <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
+       <WarningLevel>Level4</WarningLevel>
+-      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
++      <DebugInformationFormat>OldStyle</DebugInformationFormat>
+       <DisableSpecificWarnings>4706;4251;4267</DisableSpecificWarnings>
++      <ConformanceMode>true</ConformanceMode>
++      <LanguageStandard>stdcpp17</LanguageStandard>
++      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+     </ClCompile>
+     <Lib>
+       <AdditionalOptions>/MACHINE:X86 %(AdditionalOptions)</AdditionalOptions>
+@@ -191,8 +194,11 @@
+       <PrecompiledHeader>
+       </PrecompiledHeader>
+       <WarningLevel>Level4</WarningLevel>
+-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
++      <DebugInformationFormat>OldStyle</DebugInformationFormat>
+       <DisableSpecificWarnings>4706;4251;4267</DisableSpecificWarnings>
++      <ConformanceMode>true</ConformanceMode>
++      <LanguageStandard>stdcpp17</LanguageStandard>
++      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+     </ClCompile>
+     <Lib />
+   </ItemDefinitionGroup>
+@@ -211,8 +217,12 @@
+       <PrecompiledHeader />
+       <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
+       <WarningLevel>Level4</WarningLevel>
+-      <DebugInformationFormat />
++      <DebugInformationFormat>OldStyle</DebugInformationFormat>
+       <DisableSpecificWarnings>4706;4251;4267</DisableSpecificWarnings>
++      <ConformanceMode>true</ConformanceMode>
++      <LanguageStandard>stdcpp17</LanguageStandard>
++      <MultiProcessorCompilation>true</MultiProcessorCompilation>
++      <WholeProgramOptimization>false</WholeProgramOptimization>
+     </ClCompile>
+     <ResourceCompile>
+       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+@@ -238,9 +248,12 @@
+       </PrecompiledHeader>
+       <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
+       <WarningLevel>Level4</WarningLevel>
+-      <DebugInformationFormat>
+-      </DebugInformationFormat>
++      <DebugInformationFormat>OldStyle</DebugInformationFormat>
+       <DisableSpecificWarnings>4706;4251;4267</DisableSpecificWarnings>
++      <ConformanceMode>true</ConformanceMode>
++      <LanguageStandard>stdcpp17</LanguageStandard>
++      <MultiProcessorCompilation>true</MultiProcessorCompilation>
++      <WholeProgramOptimization>false</WholeProgramOptimization>
+     </ClCompile>
+     <ResourceCompile>
+       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+@@ -265,20 +278,25 @@
+       <PrecompiledHeader />
+       <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
+       <WarningLevel>Level4</WarningLevel>
+-      <DebugInformationFormat />
++      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+       <DisableSpecificWarnings>4706;4251;4267</DisableSpecificWarnings>
++      <AdditionalOptions>/Ob3 %(AdditionalOptions)</AdditionalOptions>
++      <ConformanceMode>true</ConformanceMode>
++      <LanguageStandard>stdcpp17</LanguageStandard>
++      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+     </ClCompile>
+     <ResourceCompile>
+       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+       <Culture>0x0409</Culture>
+     </ResourceCompile>
+     <Link>
+-      <GenerateDebugInformation>false</GenerateDebugInformation>
++      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
+       <SubSystem>Windows</SubSystem>
+       <OptimizeReferences>true</OptimizeReferences>
+       <EnableCOMDATFolding>true</EnableCOMDATFolding>
+-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+       <DataExecutionPrevention />
++      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
++      <AdditionalOptions>/Ob3 %(AdditionalOptions)</AdditionalOptions>
+     </Link>
+   </ItemDefinitionGroup>
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_dll|x64'">
+@@ -297,22 +315,26 @@
+       </PrecompiledHeader>
+       <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
+       <WarningLevel>Level4</WarningLevel>
+-      <DebugInformationFormat>
+-      </DebugInformationFormat>
++      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+       <DisableSpecificWarnings>4706;4251;4267</DisableSpecificWarnings>
++      <AdditionalOptions>/Ob3 %(AdditionalOptions)</AdditionalOptions>
++      <ConformanceMode>true</ConformanceMode>
++      <LanguageStandard>stdcpp17</LanguageStandard>
++      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+     </ClCompile>
+     <ResourceCompile>
+       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+       <Culture>0x0409</Culture>
+     </ResourceCompile>
+     <Link>
+-      <GenerateDebugInformation>false</GenerateDebugInformation>
++      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
+       <OptimizeReferences>true</OptimizeReferences>
+       <EnableCOMDATFolding>true</EnableCOMDATFolding>
+-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+       <DataExecutionPrevention>
+       </DataExecutionPrevention>
+       <SubSystem>Windows</SubSystem>
++      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
++      <AdditionalOptions>/Ob3 %(AdditionalOptions)</AdditionalOptions>
+     </Link>
+   </ItemDefinitionGroup>
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_dll|Win32'">
+@@ -329,15 +351,16 @@
+       <PrecompiledHeader />
+       <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
+       <WarningLevel>Level4</WarningLevel>
+-      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
++      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+       <DisableSpecificWarnings>4706;4251;4267</DisableSpecificWarnings>
++      <ConformanceMode>true</ConformanceMode>
++      <LanguageStandard>stdcpp17</LanguageStandard>
++      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+     </ClCompile>
+     <Link>
+-      <GenerateDebugInformation>true</GenerateDebugInformation>
++      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
+       <SubSystem>Windows</SubSystem>
+-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+       <DataExecutionPrevention />
+-      <TargetMachine>MachineX86</TargetMachine>
+     </Link>
+   </ItemDefinitionGroup>
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_dll|x64'">
+@@ -357,11 +380,13 @@
+       <WarningLevel>Level4</WarningLevel>
+       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+       <DisableSpecificWarnings>4706;4251;4267</DisableSpecificWarnings>
++      <ConformanceMode>true</ConformanceMode>
++      <LanguageStandard>stdcpp17</LanguageStandard>
++      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+     </ClCompile>
+     <Link>
+-      <GenerateDebugInformation>true</GenerateDebugInformation>
++      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
+       <SubSystem>Windows</SubSystem>
+-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+       <DataExecutionPrevention>
+       </DataExecutionPrevention>
+     </Link>
+@@ -382,6 +407,7 @@
+     <ClInclude Include="..\src\hunspell\phonet.hxx" />
+     <ClInclude Include="..\src\hunspell\replist.hxx" />
+     <ClInclude Include="..\src\hunspell\suggestmgr.hxx" />
++    <ClInclude Include="..\src\hunspell\utf_info.hxx" />
+     <ClInclude Include="..\src\hunspell\w_char.hxx" />
+     <ClInclude Include="config.h" />
+   </ItemGroup>
+diff --git a/msvc/testparser.vcxproj b/msvc/testparser.vcxproj
+index c9e0cf7..ec277a4 100644
+--- a/msvc/testparser.vcxproj
++++ b/msvc/testparser.vcxproj
+@@ -22,30 +22,29 @@
+     <ProjectGuid>{611BF6C7-332A-49BB-B2A3-80AFD5B785D9}</ProjectGuid>
+     <RootNamespace>testparser</RootNamespace>
+     <Keyword>Win32Proj</Keyword>
+-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+   </PropertyGroup>
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+     <ConfigurationType>Application</ConfigurationType>
+-    <PlatformToolset>v140_xp</PlatformToolset>
+-    <CharacterSet>MultiByte</CharacterSet>
+     <WholeProgramOptimization>true</WholeProgramOptimization>
++    <PlatformToolset>v143</PlatformToolset>
++    <CharacterSet>Unicode</CharacterSet>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+     <ConfigurationType>Application</ConfigurationType>
+-    <PlatformToolset>v140_xp</PlatformToolset>
+-    <CharacterSet>MultiByte</CharacterSet>
+     <WholeProgramOptimization>true</WholeProgramOptimization>
++    <PlatformToolset>v143</PlatformToolset>
++    <CharacterSet>Unicode</CharacterSet>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+     <ConfigurationType>Application</ConfigurationType>
+-    <PlatformToolset>v140_xp</PlatformToolset>
+-    <CharacterSet>MultiByte</CharacterSet>
++    <PlatformToolset>v143</PlatformToolset>
++    <CharacterSet>Unicode</CharacterSet>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+     <ConfigurationType>Application</ConfigurationType>
+-    <PlatformToolset>v140_xp</PlatformToolset>
+-    <CharacterSet>MultiByte</CharacterSet>
++    <PlatformToolset>v143</PlatformToolset>
++    <CharacterSet>Unicode</CharacterSet>
+   </PropertyGroup>
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+   <ImportGroup Label="ExtensionSettings">
+@@ -97,13 +96,12 @@
+       <WarningLevel>Level4</WarningLevel>
+       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+       <DisableSpecificWarnings>4706</DisableSpecificWarnings>
++      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+     </ClCompile>
+     <Link>
+       <GenerateDebugInformation>true</GenerateDebugInformation>
+       <SubSystem>Console</SubSystem>
+-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+       <DataExecutionPrevention />
+-      <TargetMachine>MachineX86</TargetMachine>
+     </Link>
+   </ItemDefinitionGroup>
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+@@ -119,11 +117,11 @@
+       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+       <ProgramDataBaseFileName>$(IntDir)$(ProjectName).pdb</ProgramDataBaseFileName>
+       <DisableSpecificWarnings>4706</DisableSpecificWarnings>
++      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+     </ClCompile>
+     <Link>
+       <GenerateDebugInformation>true</GenerateDebugInformation>
+       <SubSystem>Console</SubSystem>
+-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+       <DataExecutionPrevention>
+       </DataExecutionPrevention>
+     </Link>
+@@ -140,15 +138,16 @@
+       <WarningLevel>Level4</WarningLevel>
+       <DebugInformationFormat />
+       <DisableSpecificWarnings>4706</DisableSpecificWarnings>
++      <FunctionLevelLinking>true</FunctionLevelLinking>
++      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+     </ClCompile>
+     <Link>
+       <GenerateDebugInformation>true</GenerateDebugInformation>
+       <SubSystem>Console</SubSystem>
+       <OptimizeReferences>true</OptimizeReferences>
+       <EnableCOMDATFolding>true</EnableCOMDATFolding>
+-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+       <DataExecutionPrevention />
+-      <TargetMachine>MachineX86</TargetMachine>
++      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+     </Link>
+   </ItemDefinitionGroup>
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+@@ -165,6 +164,8 @@
+       <DebugInformationFormat>
+       </DebugInformationFormat>
+       <DisableSpecificWarnings>4706</DisableSpecificWarnings>
++      <FunctionLevelLinking>true</FunctionLevelLinking>
++      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+     </ClCompile>
+     <Link>
+       <GenerateDebugInformation>true</GenerateDebugInformation>
+@@ -174,6 +175,7 @@
+       <RandomizedBaseAddress>false</RandomizedBaseAddress>
+       <DataExecutionPrevention>
+       </DataExecutionPrevention>
++      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+     </Link>
+   </ItemDefinitionGroup>
+   <ItemGroup>
+-- 
+2.34.1
+

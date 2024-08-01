@@ -10,10 +10,8 @@ set -e
 set -u
 
 HUNSPELL_SOURCE_DIR="hunspell"
-# Look in configure script for line PACKAGE_VERSION='x.y.z', then capture
-# everything between single quotes.
-HUNSPELL_VERSION="$(expr "$(grep '^PACKAGE_VERSION=' "$HUNSPELL_SOURCE_DIR/configure")" \
-                         : ".*'\(.*\)'")"
+# version will be (e.g.) "1.4.0"
+HUNSPELL_VERSION=`sed -n -E 's/#define PACKAGE_VERSION "([0-9])[.]([0-9])[.]([0-9])".*/\1.\2.\3/p' "hunspell/msvc/config.h"`
 
 if [ -z "$AUTOBUILD" ] ; then
     exit 1
@@ -27,11 +25,6 @@ fi
 
 stage="$(pwd)/stage"
 
-# IMPORTANT: (Effectively) removing the code signing step for macOS
-# builds with this declaration during the move to GHA. It will
-# need to be added back in once we have a strategy for doing so.
-build_secrets_checkout=""
-
 # load autobuild provided shell functions and variables
 source_environment_tempfile="$stage/source_environment.sh"
 "$autobuild" source_environment > "$source_environment_tempfile"
@@ -43,71 +36,84 @@ source "$(dirname "$AUTOBUILD_VARIABLES_FILE")/functions"
 build=${AUTOBUILD_BUILD_ID:=0}
 echo "${HUNSPELL_VERSION}.${build}" > "${stage}/VERSION.txt"
 
-# IMPORTANT: (Effectively) removing the code signing step for macOS
-# builds with this declaration during the move to GHA. It will
-# need to be added back in once we have a strategy for doing so.
-build_secrets_checkout=""
+apply_patch()
+{
+    local patch="$1"
+    local path="$2"
+    echo "Applying $patch..."
+    git apply --check --directory="$path" "$patch" && git apply --directory="$path" "$patch"
+}
+
+apply_patch "patches/0001-Fix-MSVC-solutions-for-VS2022.patch" "hunspell"
 
 pushd "$HUNSPELL_SOURCE_DIR"
     case "$AUTOBUILD_PLATFORM" in
         windows*)
             load_vsvars
 
-            msbuild.exe "$(cygpath -w src/win_api/hunspell.sln)" \
-                -p:Platform=$AUTOBUILD_WIN_VSPLATFORM \
-                -p:Configuration="Release_dll" \
-                -p:PlatformToolset=v143
+            msbuild.exe $(cygpath -w 'msvc/Hunspell.sln') /p:Configuration=Debug /p:Platform=$AUTOBUILD_WIN_VSPLATFORM
+            msbuild.exe $(cygpath -w 'msvc/Hunspell.sln') /p:Configuration=Release /p:Platform=$AUTOBUILD_WIN_VSPLATFORM
 
+            mkdir -p "$stage/lib/debug"
             mkdir -p "$stage/lib/release"
 
             if [ "$AUTOBUILD_ADDRSIZE" = 32 ]
-            then bitdir=src/win_api/Release_dll/libhunspell/libhunspell
-            else bitdir=src/win_api/x64/Release_dll/libhunspell
+            then 
+                debbitdir=msvc/Debug/libhunspell
+                relbitdir=msvc/Release/libhunspell
+            else
+                debbitdir=msvc/x64/Debug/libhunspell
+                relbitdir=msvc/x64/Release/libhunspell
             fi
 
-            cp "$bitdir"{.dll,.lib,.pdb} "$stage/lib/release"
+            cp "$debbitdir".lib "$stage/lib/debug"
+            cp "$relbitdir".lib "$stage/lib/release"
         ;;
         darwin*)
-            opts="-m$AUTOBUILD_ADDRSIZE -arch $AUTOBUILD_CONFIGURE_ARCH $LL_BUILD_RELEASE"
+            # Setup build flags
+            opts="${TARGET_OPTS:--arch $AUTOBUILD_CONFIGURE_ARCH $LL_BUILD_RELEASE}"
             plainopts="$(remove_cxxstd $opts)"
-            export CFLAGS="$plainopts"
-            export CXXFLAGS="$opts"
-            export LDFLAGS="$plainopts"
-            ./configure --prefix="$stage"
-            make -j$(nproc)
-            make install
-            mkdir -p "$stage/lib/release"
-            mv "$stage/lib/"{*.a,*.dylib} "$stage/lib/release"
-            pushd "$stage/lib/release"
-                fix_dylib_id libhunspell-*.dylib
-              
-                CONFIG_FILE="$build_secrets_checkout/code-signing-osx/config.sh"
-                if [ -f "$CONFIG_FILE" ]; then
-                    source $CONFIG_FILE
-                    for dylib in libhunspell-*.dylib;
-                    do
-                        if [ -f "$dylib" ]; then
-                            codesign --force --timestamp --sign "$APPLE_SIGNATURE" "$dylib"
-                        fi
-                    done
-                else
-                    echo "No config file found; skipping codesign."
+
+            # force regenerate autoconf
+            autoreconf -fvi
+
+            mkdir -p "build_release"
+            pushd "build_release"
+                CFLAGS="$plainopts" CXXFLAGS="$opts" \
+                    ../configure --prefix="$stage" --libdir="$stage/lib/release" --enable-static --disable-shared
+                make -j$AUTOBUILD_CPU_COUNT
+                make install
+
+                # conditionally run unit tests
+                if [ "${DISABLE_UNIT_TESTS:-0}" = "0" ]; then
+                    make check
                 fi
             popd
         ;;
         linux*)
+            # Default target per --address-size
             opts="-m$AUTOBUILD_ADDRSIZE $LL_BUILD_RELEASE"
-            CFLAGS="$(remove_cxxstd $opts)" CXXFLAGS="$opts" ./configure --prefix="$stage"
-            make -j$(nproc)
-            make install
-            mv "$stage/lib" "$stage/release"
-            mkdir -p "$stage/lib"
-            mv "$stage/release" "$stage/lib"
+            plainopts="$(remove_cxxstd $opts)"
+
+            # force regenerate autoconf
+            autoreconf -fvi
+
+            mkdir -p "build_release"
+            pushd "build_release"
+                CFLAGS="$plainopts" CXXFLAGS="$opts" \
+                    ../configure --prefix="$stage" --libdir="$stage/lib/release" --enable-static --disable-shared
+                make -j$AUTOBUILD_CPU_COUNT
+                make install
+
+                # conditionally run unit tests
+                if [ "${DISABLE_UNIT_TESTS:-0}" = "0" ]; then
+                    make check
+                fi
+            popd
         ;;
     esac
     mkdir -p "$stage/include/hunspell"
     cp src/hunspell/{*.h,*.hxx} "$stage/include/hunspell"
-    cp src/win_api/hunspelldll.h "$stage/include/hunspell"
     mkdir -p "$stage/LICENSES"
     cp "license.hunspell" "$stage/LICENSES/hunspell.txt"
     cp "license.myspell" "$stage/LICENSES/myspell.txt"
