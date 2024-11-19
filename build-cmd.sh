@@ -58,7 +58,7 @@ pushd "$HUNSPELL_SOURCE_DIR"
             mkdir -p "$stage/lib/release"
 
             if [ "$AUTOBUILD_ADDRSIZE" = 32 ]
-            then 
+            then
                 debbitdir=msvc/Debug/libhunspell
                 relbitdir=msvc/Release/libhunspell
             else
@@ -77,18 +77,31 @@ pushd "$HUNSPELL_SOURCE_DIR"
             # force regenerate autoconf
             autoreconf -fvi
 
-            mkdir -p "build_release"
-            pushd "build_release"
-                CFLAGS="$plainopts" CXXFLAGS="$opts" \
-                    ../configure --prefix="$stage" --libdir="$stage/lib/release" --enable-static --disable-shared
-                make -j$AUTOBUILD_CPU_COUNT
-                make install
+            export MACOSX_DEPLOYMENT_TARGET="$LL_BUILD_DARWIN_DEPLOY_TARGET"
 
-                # conditionally run unit tests
-                if [ "${DISABLE_UNIT_TESTS:-0}" = "0" ]; then
-                    make check
-                fi
-            popd
+            for arch in x86_64 arm64 ; do
+                ARCH_ARGS="-arch $arch"
+                opts="${TARGET_OPTS:-$ARCH_ARGS $LL_BUILD_RELEASE}"
+                cc_opts="$(remove_cxxstd $opts)"
+                ld_opts="$ARCH_ARGS"
+
+                mkdir -p "build_$arch"
+                pushd "build_$arch"
+                    CFLAGS="$cc_opts" \
+                    CXXFLAGS="$opts" \
+                    LDFLAGS="$ld_opts" \
+                    ../configure --prefix="$stage" --libdir="$stage/lib/release/$arch" --enable-static --disable-shared --host=$arch-apple-darwin
+                    make -j$AUTOBUILD_CPU_COUNT
+                    make install
+
+                    # conditionally run unit tests
+                    if [ "${DISABLE_UNIT_TESTS:-0}" = "0" ]; then
+                        make check -j$AUTOBUILD_CPU_COUNT
+                    fi
+                popd
+            done
+
+            lipo -create -output ${stage}/lib/release/libhunspell-1.7.a ${stage}/lib/release/x86_64/libhunspell-1.7.a ${stage}/lib/release/arm64/libhunspell-1.7.a
         ;;
         linux*)
             # Default target per --address-size
@@ -107,7 +120,7 @@ pushd "$HUNSPELL_SOURCE_DIR"
 
                 # conditionally run unit tests
                 if [ "${DISABLE_UNIT_TESTS:-0}" = "0" ]; then
-                    make check
+                    make check -j$AUTOBUILD_CPU_COUNT
                 fi
             popd
         ;;
